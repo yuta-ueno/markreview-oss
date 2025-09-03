@@ -1,0 +1,125 @@
+.shortcut-editor {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.shortcut-editor:last-child {
+  border-bottom: none;
+}
+
+.shortcut-action {
+  font-weight: 500;
+  color: var(--text-color);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.shortcut-input-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shortcut-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shortcut-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-color);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 13px;
+  transition: border-color 0.2s ease;
+}
+
+.shortcut-input input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.shortcut-input input.recording {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  background: var(--bg-primary);
+}
+
+.shortcut-input input.error {
+  border-color: var(--error-color, #e74c3c);
+}
+
+.shortcut-input input::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.shortcut-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-color);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-color);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn.btn-small {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.btn.btn-secondary {
+  background: var(--bg-tertiary);
+}
+
+.shortcut-error {
+  color: var(--error-color, #e74c3c);
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .shortcut-input input {
+  background: var(--bg-secondary);
+  border-color: #444;
+}
+
+[data-theme="dark"] .shortcut-input input.recording {
+  background: var(--bg-primary);
+}
+
+[data-theme="dark"] .btn {
+  border-color: #444;
+  background: #333;
+}
+
+[data-theme="dark"] .btn:hover {
+  background: #444;
+  border-color: var(--accent-color);
+}

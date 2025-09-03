@@ -1,0 +1,41 @@
+.codemirror-editor {
+  height: 100%;
+  width: 100%;
+}
+
+.codemirror-editor .cm-editor {
+  height: 100%;
+}
+
+.codemirror-editor .cm-scroller {
+  height: 100%;
+}
+
+/* Custom scrollbar styling */
+.codemirror-editor .cm-scroller::-webkit-scrollbar {
+  width: 8px;
+}
+
+.codemirror-editor .cm-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.codemirror-editor .cm-scroller::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.codemirror-editor .cm-scroller::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Dark theme scrollbar */
+@media (prefers-color-scheme: dark) {
+  .codemirror-editor .cm-scroller::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .codemirror-editor .cm-scroller::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+}

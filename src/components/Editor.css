@@ -1,0 +1,47 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: white;
+}
+
+.editor-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f9fa;
+  flex-shrink: 0;
+}
+
+.editor-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+}
+
+.editor-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .editor {
+    background-color: #1e1e1e;
+    color: #cccccc;
+  }
+
+  .editor-header {
+    background-color: #252526;
+    border-bottom-color: #444;
+  }
+
+  .editor-header h3 {
+    color: #cccccc;
+  }
+
+  .editor-textarea::placeholder {
+    color: #666;
+  }
+}

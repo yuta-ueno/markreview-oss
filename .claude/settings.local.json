@@ -58,7 +58,19 @@
       "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" release create v0.1.0 )",
       "Bash(\"src-tauri/target/release/bundle/msi/MarkReview_0.0.1_x64_en-US.msi\" )",
       "Bash(\"src-tauri/target/release/bundle/nsis/MarkReview_0.0.1_x64-setup.exe\")",
-      "Bash(magick:*)"
+      "Bash(magick:*)",
+      "Bash(where magick)",
+      "Bash(powershell:*)",
+      "Bash(node:*)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" release list)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" release delete v0.1.0 --yes)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" release create v0.1.0 \"src-tauri/target/release/bundle/msi/MarkReview_0.0.1_x64_en-US.msi\" \"src-tauri/target/release/bundle/nsis/MarkReview_0.0.1_x64-setup.exe\" --title \"MarkReview v0.1.0 - Updated Icons\" --notes \"## MarkReview v0.1.0 - Updated Icons\n\n### Changes\n- Updated application icons with new MarkReview design\n- Refreshed iOS and Android icons for all required sizes\n- Consistent icon design across all platforms\n\n### Downloads\n- **Windows MSI Installer**: MarkReview_0.0.1_x64_en-US.msi\n- **Windows NSIS Installer**: MarkReview_0.0.1_x64-setup.exe\n\n### Features\n- Lightweight Markdown viewer and editor\n- Real-time preview with syntax highlighting\n- Cross-platform desktop application built with Tauri\n- Support for GitHub Flavored Markdown (GFM)\n\n### System Requirements\n- Windows 10 or later (x64)\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" release create v0.1.0 \"src-tauri/target/release/bundle/msi/MarkReview_0.0.1_x64_en-US.msi\" \"src-tauri/target/release/bundle/nsis/MarkReview_0.0.1_x64-setup.exe\" --title \"MarkReview v0.1.0 - Fixed Icons\" --notes \"## MarkReview v0.1.0 - Fixed Icons\n\n### Changes\n- **Fixed**: Corrected icon configuration to use new MarkReview icons properly\n- **Updated**: Application icons with new MarkReview design across all platforms\n- **Improved**: Icon file references in Tauri configuration\n\n### Downloads\n- **Windows MSI Installer**: MarkReview_0.0.1_x64_en-US.msi\n- **Windows NSIS Installer**: MarkReview_0.0.1_x64-setup.exe\n\n### Features\n- Lightweight Markdown viewer and editor\n- Real-time preview with syntax highlighting\n- Cross-platform desktop application built with Tauri\n- Support for GitHub Flavored Markdown (GFM)\n\n### System Requirements\n- Windows 10 or later (x64)\n\n### Note\nIf you still see the old icon after installation, try:\n1. Restart Windows Explorer (Ctrl+Shift+Esc → Restart Windows Explorer)\n2. Clear icon cache: Delete IconCache.db files from %LocalAppData% folders\n3. Reboot your system\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" release list --limit 5)",
+      "Bash(.src-tauritargetreleasemarkreview.exe)",
+      "Bash(\"./src-tauri/target/release/markreview.exe\")",
+      "Bash(\"./src-tauri/target/x86_64-pc-windows-msvc/release/markreview.exe\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" release create v0.1.1 \"src-tauri/target/release/bundle/msi/MarkReview_0.0.1_x64_en-US.msi\" \"src-tauri/target/release/bundle/nsis/MarkReview_0.0.1_x64-setup.exe\" --title \"MarkReview v0.1.1 - Startup Fix\" --notes \"## MarkReview v0.1.1 - 起動問題修正\n\n### 🔧 修正内容\n- **修正**: Windows環境での起動問題を解決\n- **修正**: Tauri 2.0プラグイン設定の問題を修正\n- **改善**: アプリケーションの安定性向上\n\n### 📥 ダウンロード\n- **Windows MSIインストーラー**: MarkReview_0.0.1_x64_en-US.msi\n- **Windows NSISインストーラー**: MarkReview_0.0.1_x64-setup.exe\n\n### ✨ 機能\n- 軽量Markdownビューアー・エディター\n- リアルタイムプレビューとシンタックスハイライト\n- Tauriによるクロスプラットフォーム対応デスクトップアプリ\n- GitHub Flavored Markdown (GFM)サポート\n\n### 💻 システム要件\n- Windows 10 以降 (x64)\n- WebView2 Runtime（通常Windows 11には標準搭載）\n\n### 🆕 今回の変更点\n前バージョンで起動しなかった問題が解決されています。新しいインストーラーをお試しください。\")"
     ],
     "deny": [],
     "ask": []

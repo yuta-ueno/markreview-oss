@@ -228,29 +228,65 @@ function App() {
 
   // Apply theme to document root
   useEffect(() => {
+    console.log('Theme useEffect triggered:', settings.theme)
     const root = document.documentElement
     
     if (settings.theme === 'auto') {
       // For auto theme, remove data-theme attribute and let CSS media queries handle it
       root.removeAttribute('data-theme')
+      console.log('Applied auto theme - removed data-theme attribute')
     } else {
       // For specific themes, set data-theme attribute
       root.setAttribute('data-theme', settings.theme)
+      console.log('Applied theme:', settings.theme, 'data-theme attribute set to:', root.getAttribute('data-theme'))
     }
   }, [settings.theme])
 
   useEffect(() => {
     // Check if running in Tauri environment
-    if (typeof window !== 'undefined' && '__TAURI__' in window) {
+    const checkTauriEnvironment = () => {
+      const hasTauriGlobal = typeof window !== 'undefined' && '__TAURI__' in window
+      const hasTauriInternalApi = typeof window !== 'undefined' && (window as any).__TAURI_INTERNALS__
+      const isTauriEnv = hasTauriGlobal || hasTauriInternalApi
+      console.log('Checking Tauri environment:', {
+        hasTauriGlobal,
+        hasTauriInternalApi,
+        isTauriEnv,
+        windowKeys: typeof window !== 'undefined' ? Object.keys(window).filter(k => k.includes('TAURI')) : []
+      })
+      return isTauriEnv
+    }
+    
+    // Try initial check
+    if (checkTauriEnvironment()) {
+      console.log('Running in Tauri environment')
       setIsTauri(true)
+      initializeTauriFeatures()
+    } else {
+      // Retry after a short delay for cases where Tauri isn't ready immediately
+      console.log('Tauri not detected immediately, retrying in 100ms...')
+      const retryTimer = setTimeout(() => {
+        if (checkTauriEnvironment()) {
+          console.log('Running in Tauri environment (delayed detection)')
+          setIsTauri(true)
+          initializeTauriFeatures()
+        } else {
+          console.log('Final check: Not running in Tauri environment')
+        }
+      }, 100)
+      
+      return () => clearTimeout(retryTimer)
+    }
 
-      // Import Tauri APIs dynamically
+    function initializeTauriFeatures() {
+      // Import Tauri APIs dynamically with @vite-ignore
       const initTauriAPIs = async () => {
         try {
-          // Use dynamic import with variable to avoid TypeScript/Vite analysis
+          console.log('Attempting to import Tauri fs API...')
           const fsModule = '@tauri-apps/api/fs'
-          const fs = await import(fsModule)
+          const fs = await import(/* @vite-ignore */ fsModule)
           readTextFile = fs.readTextFile
+          console.log('Successfully imported Tauri fs API')
         } catch (err) {
           console.error('Failed to import Tauri fs API:', err)
         }
@@ -259,14 +295,18 @@ function App() {
       // Setup Tauri file drop event listener
       const setupTauriFileDropListener = async () => {
         try {
+          console.log('Setting up Tauri file drop listener...')
           const eventModule = '@tauri-apps/api/event'
-          const { listen } = await import(eventModule)
+          const { listen } = await import(/* @vite-ignore */ eventModule)
           const unlisten = await listen('tauri://file-drop', (event: any) => {
+            console.log('File drop event received:', event)
             if (event.payload.paths && event.payload.paths.length > 0) {
               const filePath = event.payload.paths[0]
+              console.log('Processing dropped file:', filePath)
               handleTauriFileDrop(filePath)
             }
           })
+          console.log('Tauri file drop listener setup complete')
           
           // Cleanup listener on component unmount
           return unlisten

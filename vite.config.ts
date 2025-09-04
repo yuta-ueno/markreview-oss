@@ -19,4 +19,12 @@ export default defineConfig({
     'TAURI_PLATFORM_TYPE',
     'TAURI_DEBUG',
   ],
+  build: {
+    rollupOptions: {
+      external: [
+        '@tauri-apps/api/fs',
+        '@tauri-apps/api/event',
+      ],
+    },
+  },
 })

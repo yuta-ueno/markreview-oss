@@ -3,7 +3,6 @@ import SplitPane from './components/SplitPane'
 import Preview from './components/Preview'
 import Editor from './components/Editor'
 import Toolbar from './components/Toolbar'
-import DragDropOverlay from './components/DragDropOverlay'
 import SettingsPanel from './components/SettingsPanel'
 import { ToastContainer } from './components/Toast'
 import { useDebounce } from './hooks/useDebounce'
@@ -14,6 +13,9 @@ import { useSettings } from './hooks/useSettings'
 import { useToast } from './hooks/useToast'
 import { saveAsFile, saveFile, validateFileContent } from './utils/file'
 import './App.css'
+
+// Tauri imports - will be dynamically imported when needed
+let readTextFile: any = null
 
 const DEFAULT_CONTENT = `# Welcome to MarkReview
 
@@ -66,8 +68,6 @@ function App() {
     enabled: settings.preview.syncScroll,
     throttleDelay: 100,
   })
-
-
 
   // Legacy handleOpen for backward compatibility with Toolbar
   const handleOpen = useCallback((content: string, filename: string) => {
@@ -132,6 +132,31 @@ function App() {
     setHasUnsavedChanges(false)
   }, [])
 
+  // Tauri file drop handler
+  const handleTauriFileDrop = useCallback(async (filePath: string) => {
+    try {
+      // Validate file extension
+      if (!filePath.match(/\.(md|markdown|txt)$/i)) {
+        error('Please select a Markdown file (.md, .markdown, or .txt)')
+        return
+      }
+
+      // Read file using Tauri API
+      const content = await readTextFile(filePath)
+      const fileName = filePath.split(/[/\\]/).pop() || 'Unknown.md'
+      
+      setMarkdownContent(content)
+      setOriginalContent(content)
+      setFilename(fileName)
+      setCurrentFilePath(filePath)
+      setHasUnsavedChanges(false)
+      success(`File "${fileName}" opened successfully`)
+    } catch (err) {
+      console.error('Error reading dropped file:', err)
+      error(`Failed to read file: ${err}`)
+    }
+  }, [error, success])
+
   // File handling for drag & drop and browser file input
   const handleFileRead = useCallback((files: File[]) => {
     const file = files[0]
@@ -180,7 +205,7 @@ function App() {
     input.click()
   }, [handleFileRead])
 
-  // Setup drag and drop
+  // Setup drag and drop for browser
   const { isDragging, dragAndDropProps } = useDragAndDrop({
     onFilesDrop: handleFileRead,
     acceptedFileTypes: ['.md', '.markdown', '.txt'],
@@ -201,12 +226,63 @@ function App() {
     onToggleSettings: () => setIsSettingsOpen(true),
   }, settings)
 
+  // Apply theme to document root
+  useEffect(() => {
+    const root = document.documentElement
+    
+    if (settings.theme === 'auto') {
+      // For auto theme, remove data-theme attribute and let CSS media queries handle it
+      root.removeAttribute('data-theme')
+    } else {
+      // For specific themes, set data-theme attribute
+      root.setAttribute('data-theme', settings.theme)
+    }
+  }, [settings.theme])
+
   useEffect(() => {
     // Check if running in Tauri environment
     if (typeof window !== 'undefined' && '__TAURI__' in window) {
       setIsTauri(true)
+
+      // Import Tauri APIs dynamically
+      const initTauriAPIs = async () => {
+        try {
+          const fs = await import('@tauri-apps/api/fs' as any)
+          readTextFile = fs.readTextFile
+        } catch (err) {
+          console.error('Failed to import Tauri fs API:', err)
+        }
+      }
+
+      // Setup Tauri file drop event listener
+      const setupTauriFileDropListener = async () => {
+        try {
+          const { listen } = await import('@tauri-apps/api/event' as any)
+          const unlisten = await listen('tauri://file-drop', (event: any) => {
+            if (event.payload.paths && event.payload.paths.length > 0) {
+              const filePath = event.payload.paths[0]
+              handleTauriFileDrop(filePath)
+            }
+          })
+          
+          // Cleanup listener on component unmount
+          return unlisten
+        } catch (err) {
+          console.error('Failed to setup Tauri file drop listener:', err)
+        }
+      }
+
+      // Initialize APIs and setup listeners
+      initTauriAPIs()
+      const unlistenPromise = setupTauriFileDropListener()
+
+      return () => {
+        if (unlistenPromise) {
+          unlistenPromise.then(unlisten => unlisten?.())
+        }
+      }
     }
-  }, [])
+  }, [handleTauriFileDrop])
 
   const handleContentChange = useCallback((content: string) => {
     setMarkdownContent(content)
@@ -214,7 +290,16 @@ function App() {
   }, [originalContent])
 
   return (
-    <div className="app" {...dragAndDropProps}>
+    <div className="app" {...(isTauri ? {} : dragAndDropProps)}>
+      {isDragging && !isTauri && (
+        <div className="drag-overlay">
+          <div className="drag-message">
+            <h2>Drop your Markdown file here</h2>
+            <p>Supported formats: .md, .markdown, .txt</p>
+          </div>
+        </div>
+      )}
+      
       <div className="app-header">
         <h1>MarkReview</h1>
         <span className="app-env">
@@ -230,9 +315,15 @@ function App() {
         filename={filename}
         hasUnsavedChanges={hasUnsavedChanges}
       />
+      
       <div className="app-content">
         <SplitPane
-          left={<Preview content={debouncedContent} ref={previewScrollRef} />}
+          left={
+            <Preview
+              content={debouncedContent}
+              ref={previewScrollRef}
+            />
+          }
           right={
             <Editor
               value={markdownContent}
@@ -241,11 +332,11 @@ function App() {
               ref={editorScrollRef}
             />
           }
-          defaultSplit={50}
+          defaultSplit={60}
           minSize={25}
         />
       </div>
-      <DragDropOverlay isVisible={isDragging} />
+
       <SettingsPanel
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
@@ -253,6 +344,7 @@ function App() {
         onUpdateSettings={updateSettings}
         onResetSettings={resetSettings}
       />
+
       <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   )

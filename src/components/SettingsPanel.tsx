@@ -80,6 +80,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   <option value="auto">Auto (System)</option>
                   <option value="light">Light</option>
                   <option value="dark">Dark</option>
+                  <option value="solarized-light">Solarized Light</option>
+                  <option value="solarized-dark">Solarized Dark</option>
                 </select>
               </div>
             </div>

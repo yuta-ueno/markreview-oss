@@ -1,5 +1,28 @@
+/* Solarized Color Palette */
 :root {
-  /* Light theme variables */
+  /* Solarized Base Colors */
+  --sol-base03: #002b36;
+  --sol-base02: #073642;
+  --sol-base01: #586e75;
+  --sol-base00: #657b83;
+  --sol-base0: #839496;
+  --sol-base1: #93a1a1;
+  --sol-base2: #eee8d5;
+  --sol-base3: #fdf6e3;
+  
+  /* Solarized Accent Colors */
+  --sol-yellow: #b58900;
+  --sol-orange: #cb4b16;
+  --sol-red: #dc322f;
+  --sol-magenta: #d33682;
+  --sol-violet: #6c71c4;
+  --sol-blue: #268bd2;
+  --sol-cyan: #2aa198;
+  --sol-green: #859900;
+}
+
+/* Light theme (default) */
+:root {
   --text-color: #333;
   --text-muted: #666;
   --bg-primary: #ffffff;
@@ -11,9 +34,48 @@
   --error-color: #e74c3c;
 }
 
+/* Dark theme */
+[data-theme="dark"] {
+  --text-color: #cccccc;
+  --text-muted: #999999;
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #3c3c3c;
+  --bg-hover: #444444;
+  --border-color: #444444;
+  --accent-color: #4299e1;
+  --error-color: #f56565;
+}
+
+/* Solarized Light theme */
+[data-theme="solarized-light"] {
+  --text-color: var(--sol-base00);
+  --text-muted: var(--sol-base1);
+  --bg-primary: var(--sol-base3);
+  --bg-secondary: var(--sol-base2);
+  --bg-tertiary: #f7f2e8;
+  --bg-hover: #e6dcc5;
+  --border-color: var(--sol-base2);
+  --accent-color: var(--sol-blue);
+  --error-color: var(--sol-red);
+}
+
+/* Solarized Dark theme */
+[data-theme="solarized-dark"] {
+  --text-color: var(--sol-base0);
+  --text-muted: var(--sol-base01);
+  --bg-primary: var(--sol-base03);
+  --bg-secondary: var(--sol-base02);
+  --bg-tertiary: #0a3541;
+  --bg-hover: #0f4450;
+  --border-color: var(--sol-base02);
+  --accent-color: var(--sol-cyan);
+  --error-color: var(--sol-red);
+}
+
+/* Auto theme - system preference */
 @media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark theme variables */
+  [data-theme="auto"] {
     --text-color: #cccccc;
     --text-muted: #999999;
     --bg-primary: #1e1e1e;
@@ -39,8 +101,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e5e5e5;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 
@@ -48,35 +110,18 @@
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--text-color);
 }
 
 .app-env {
   font-size: 12px;
-  color: #666;
+  color: var(--text-muted);
   padding: 4px 8px;
-  background-color: #e9ecef;
+  background-color: var(--bg-tertiary);
   border-radius: 4px;
 }
 
 .app-content {
   flex: 1;
   overflow: hidden;
-}
-
-/* Dark theme support */
-@media (prefers-color-scheme: dark) {
-  .app-header {
-    background-color: #252526;
-    border-bottom-color: #444;
-  }
-
-  .app-header h1 {
-    color: #cccccc;
-  }
-
-  .app-env {
-    background-color: #3c3c3c;
-    color: #cccccc;
-  }
 }

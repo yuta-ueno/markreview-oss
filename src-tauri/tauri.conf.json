@@ -1,6 +1,6 @@
 {
   "productName": "MarkReview",
-  "version": "0.0.1",
+  "version": "0.1.2",
   "identifier": "com.markreview.desktop",
   "build": {
     "beforeBuildCommand": "npm run build",
@@ -24,8 +24,7 @@
     ],
     "security": {
       "csp": null
-    },
-    "enableGTKAppId": true
+    }
   },
   "bundle": {
     "active": true,

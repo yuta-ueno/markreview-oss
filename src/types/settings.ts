@@ -1,4 +1,4 @@
-export type ThemeMode = 'light' | 'dark' | 'auto'
+export type ThemeMode = 'light' | 'dark' | 'solarized-light' | 'solarized-dark' | 'auto'
 
 export interface EditorSettings {
   fontSize: number

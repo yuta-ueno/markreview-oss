@@ -27,4 +27,7 @@ export default defineConfig({
       ],
     },
   },
+  optimizeDeps: {
+    exclude: ['@tauri-apps/api'],
+  },
 })

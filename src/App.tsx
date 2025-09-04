@@ -247,7 +247,9 @@ function App() {
       // Import Tauri APIs dynamically
       const initTauriAPIs = async () => {
         try {
-          const fs = await import('@tauri-apps/api/fs' as any)
+          // Use dynamic import with variable to avoid TypeScript/Vite analysis
+          const fsModule = '@tauri-apps/api/fs'
+          const fs = await import(fsModule)
           readTextFile = fs.readTextFile
         } catch (err) {
           console.error('Failed to import Tauri fs API:', err)
@@ -257,7 +259,8 @@ function App() {
       // Setup Tauri file drop event listener
       const setupTauriFileDropListener = async () => {
         try {
-          const { listen } = await import('@tauri-apps/api/event' as any)
+          const eventModule = '@tauri-apps/api/event'
+          const { listen } = await import(eventModule)
           const unlisten = await listen('tauri://file-drop', (event: any) => {
             if (event.payload.paths && event.payload.paths.length > 0) {
               const filePath = event.payload.paths[0]
@@ -290,7 +293,7 @@ function App() {
   }, [originalContent])
 
   return (
-    <div className="app" {...(isTauri ? {} : dragAndDropProps)}>
+    <div className="app" {...(!isTauri ? dragAndDropProps : {})}>
       {isDragging && !isTauri && (
         <div className="drag-overlay">
           <div className="drag-message">

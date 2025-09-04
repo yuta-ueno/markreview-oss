@@ -104,25 +104,6 @@
   padding: 4px 0;
 }
 
-/* Dark theme adjustments */
-[data-theme="dark"] .shortcut-input input {
-  background: var(--bg-secondary);
-  border-color: #444;
-}
-
-[data-theme="dark"] .shortcut-input input.recording {
-  background: var(--bg-primary);
-}
-
-[data-theme="dark"] .btn {
-  border-color: #444;
-  background: #333;
-}
-
-[data-theme="dark"] .btn:hover {
-  background: #444;
-  border-color: var(--accent-color);
-}
 
 /* Solarized Light theme adjustments */
 [data-theme="solarized-light"] .shortcut-input input {

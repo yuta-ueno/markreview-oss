@@ -13,7 +13,7 @@ const validateSettings = (settings: unknown): AppSettings => {
 
   // Merge with defaults to handle missing properties
   const validatedSettings: AppSettings = {
-    theme: s.theme && ['light', 'dark', 'auto'].includes(s.theme) 
+    theme: s.theme && ['solarized-light', 'solarized-dark', 'auto'].includes(s.theme) 
       ? s.theme 
       : DEFAULT_SETTINGS.theme,
     

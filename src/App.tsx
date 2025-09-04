@@ -372,10 +372,11 @@ function App() {
               value={markdownContent}
               onChange={handleContentChange}
               placeholder="Start typing your markdown..."
+              settings={settings}
               ref={editorScrollRef}
             />
           }
-          defaultSplit={60}
+          defaultSplit={50}
           minSize={25}
         />
       </div>

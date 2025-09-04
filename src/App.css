@@ -23,29 +23,17 @@
 
 /* Light theme (default) */
 :root {
-  --text-color: #333;
-  --text-muted: #666;
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --bg-tertiary: #e9ecef;
-  --bg-hover: #dee2e6;
-  --border-color: #e5e5e5;
-  --accent-color: #007acc;
-  --error-color: #e74c3c;
+  --text-color: var(--sol-base00);
+  --text-muted: var(--sol-base1);
+  --bg-primary: var(--sol-base3);
+  --bg-secondary: var(--sol-base2);
+  --bg-tertiary: #eee8d5;
+  --bg-hover: #e3dcc9;
+  --border-color: var(--sol-base2);
+  --accent-color: var(--sol-blue);
+  --error-color: var(--sol-red);
 }
 
-/* Dark theme */
-[data-theme="dark"] {
-  --text-color: #cccccc;
-  --text-muted: #999999;
-  --bg-primary: #1e1e1e;
-  --bg-secondary: #252526;
-  --bg-tertiary: #3c3c3c;
-  --bg-hover: #444444;
-  --border-color: #444444;
-  --accent-color: #4299e1;
-  --error-color: #f56565;
-}
 
 /* Solarized Light theme */
 [data-theme="solarized-light"] {
@@ -75,16 +63,16 @@
 
 /* Auto theme - system preference */
 @media (prefers-color-scheme: dark) {
-  [data-theme="auto"] {
-    --text-color: #cccccc;
-    --text-muted: #999999;
-    --bg-primary: #1e1e1e;
-    --bg-secondary: #252526;
-    --bg-tertiary: #3c3c3c;
-    --bg-hover: #444444;
-    --border-color: #444444;
-    --accent-color: #4299e1;
-    --error-color: #f56565;
+  :root:not([data-theme]) {
+    --text-color: var(--sol-base0);
+    --text-muted: var(--sol-base01);
+    --bg-primary: var(--sol-base03);
+    --bg-secondary: var(--sol-base02);
+    --bg-tertiary: #0a3541;
+    --bg-hover: #0f4450;
+    --border-color: var(--sol-base02);
+    --accent-color: var(--sol-cyan);
+    --error-color: var(--sol-red);
   }
 }
 

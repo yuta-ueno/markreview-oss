@@ -2,27 +2,42 @@ import React, { useEffect, useRef } from 'react'
 import { EditorView, basicSetup } from 'codemirror'
 import { EditorState } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown'
-import { oneDark } from '@codemirror/theme-one-dark'
+import { solarizedLight, solarizedDark } from '@uiw/codemirror-theme-solarized'
 import './CodeMirrorEditor.css'
 
 interface CodeMirrorEditorProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
-  darkTheme?: boolean
+  theme?: 'solarized-light' | 'solarized-dark'
 }
 
 const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
   value,
   onChange,
   placeholder = 'Start typing your markdown...',
-  darkTheme = false,
+  theme = 'solarized-light',
 }) => {
   const editor = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
+  const currentTheme = useRef<string>(theme)
 
   useEffect(() => {
     if (!editor.current) return
+
+    // Check if theme actually changed
+    if (currentTheme.current === theme && viewRef.current) {
+      return
+    }
+
+    console.log('CodeMirror theme change from', currentTheme.current, 'to', theme)
+    currentTheme.current = theme
+
+    // Clean up existing editor
+    if (viewRef.current) {
+      viewRef.current.destroy()
+      viewRef.current = null
+    }
 
     const handleChange = (newValue: string) => {
       onChange(newValue)
@@ -60,8 +75,12 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
       }),
     ]
 
-    if (darkTheme) {
-      extensions.push(oneDark)
+    // Apply Solarized theme
+    console.log('Applying CodeMirror theme:', theme)
+    if (theme === 'solarized-dark') {
+      extensions.push(solarizedDark)
+    } else {
+      extensions.push(solarizedLight)
     }
 
     if (placeholder) {
@@ -97,7 +116,7 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [darkTheme, placeholder]) // Recreate editor when theme changes
+  }, [theme, placeholder]) // Recreate editor when theme changes
 
   // Update editor content when value changes externally
   useEffect(() => {

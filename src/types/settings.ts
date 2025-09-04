@@ -1,4 +1,4 @@
-export type ThemeMode = 'light' | 'dark' | 'solarized-light' | 'solarized-dark' | 'auto'
+export type ThemeMode = 'solarized-light' | 'solarized-dark' | 'auto'
 
 export interface EditorSettings {
   fontSize: number
@@ -31,7 +31,7 @@ export interface AppSettings {
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  theme: 'auto',
+  theme: 'solarized-dark',
   editor: {
     fontSize: 14,
     fontFamily: 'Monaco, Menlo, Ubuntu Mono, Consolas, monospace',

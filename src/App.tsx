@@ -11,11 +11,12 @@ import { useDragAndDrop } from './hooks/useDragAndDrop'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useSettings } from './hooks/useSettings'
 import { useToast } from './hooks/useToast'
-import { saveAsFile, saveFile, validateFileContent } from './utils/file'
+import { useFileOperations } from './hooks/useFileOperations'
+import { themeLogger, tauriLogger } from './utils/logger'
 import './App.css'
 
 // Tauri imports - will be dynamically imported when needed
-let readTextFile: any = null
+let readTextFile: ((filePath: string) => Promise<string>) | null = null
 
 const DEFAULT_CONTENT = `# Welcome to MarkReview
 
@@ -142,6 +143,10 @@ function App() {
       }
 
       // Read file using Tauri API
+      if (!readTextFile) {
+        error('Tauri file API not available')
+        return
+      }
       const content = await readTextFile(filePath)
       const fileName = filePath.split(/[/\\]/).pop() || 'Unknown.md'
       
@@ -228,17 +233,17 @@ function App() {
 
   // Apply theme to document root
   useEffect(() => {
-    console.log('Theme useEffect triggered:', settings.theme)
+    themeLogger.editorThemeUpdate(settings.theme)
     const root = document.documentElement
     
     if (settings.theme === 'auto') {
       // For auto theme, remove data-theme attribute and let CSS media queries handle it
       root.removeAttribute('data-theme')
-      console.log('Applied auto theme - removed data-theme attribute')
+      themeLogger.themeApplied('auto - removed data-theme attribute')
     } else {
       // For specific themes, set data-theme attribute
       root.setAttribute('data-theme', settings.theme)
-      console.log('Applied theme:', settings.theme, 'data-theme attribute set to:', root.getAttribute('data-theme'))
+      themeLogger.themeApplied(settings.theme, root.getAttribute('data-theme') || undefined)
     }
   }, [settings.theme])
 
@@ -248,7 +253,7 @@ function App() {
       const hasTauriGlobal = typeof window !== 'undefined' && '__TAURI__' in window
       const hasTauriInternalApi = typeof window !== 'undefined' && (window as any).__TAURI_INTERNALS__
       const isTauriEnv = hasTauriGlobal || hasTauriInternalApi
-      console.log('Checking Tauri environment:', {
+      tauriLogger.environmentCheck({
         hasTauriGlobal,
         hasTauriInternalApi,
         isTauriEnv,
@@ -259,19 +264,19 @@ function App() {
     
     // Try initial check
     if (checkTauriEnvironment()) {
-      console.log('Running in Tauri environment')
+      tauriLogger.environmentDetected()
       setIsTauri(true)
       initializeTauriFeatures()
     } else {
       // Retry after a short delay for cases where Tauri isn't ready immediately
-      console.log('Tauri not detected immediately, retrying in 100ms...')
+      tauriLogger.retryDetection()
       const retryTimer = setTimeout(() => {
         if (checkTauriEnvironment()) {
-          console.log('Running in Tauri environment (delayed detection)')
+          tauriLogger.environmentDetected(true)
           setIsTauri(true)
           initializeTauriFeatures()
         } else {
-          console.log('Final check: Not running in Tauri environment')
+          tauriLogger.environmentNotDetected()
         }
       }, 100)
       
@@ -282,11 +287,11 @@ function App() {
       // Import Tauri APIs dynamically with @vite-ignore
       const initTauriAPIs = async () => {
         try {
-          console.log('Attempting to import Tauri fs API...')
+          tauriLogger.apiImportAttempt()
           const fsModule = '@tauri-apps/api/fs'
           const fs = await import(/* @vite-ignore */ fsModule)
           readTextFile = fs.readTextFile
-          console.log('Successfully imported Tauri fs API')
+          tauriLogger.apiImportSuccess()
         } catch (err) {
           console.error('Failed to import Tauri fs API:', err)
         }
@@ -295,18 +300,18 @@ function App() {
       // Setup Tauri file drop event listener
       const setupTauriFileDropListener = async () => {
         try {
-          console.log('Setting up Tauri file drop listener...')
+          tauriLogger.fileDropSetup()
           const eventModule = '@tauri-apps/api/event'
           const { listen } = await import(/* @vite-ignore */ eventModule)
           const unlisten = await listen('tauri://file-drop', (event: any) => {
-            console.log('File drop event received:', event)
+            tauriLogger.fileDropReceived(event)
             if (event.payload.paths && event.payload.paths.length > 0) {
               const filePath = event.payload.paths[0]
-              console.log('Processing dropped file:', filePath)
+              tauriLogger.processingDroppedFile(filePath)
               handleTauriFileDrop(filePath)
             }
           })
-          console.log('Tauri file drop listener setup complete')
+          tauriLogger.fileDropComplete()
           
           // Cleanup listener on component unmount
           return unlisten

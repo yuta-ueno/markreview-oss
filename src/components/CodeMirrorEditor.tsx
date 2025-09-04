@@ -3,6 +3,7 @@ import { EditorView, basicSetup } from 'codemirror'
 import { EditorState } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown'
 import { solarizedLight, solarizedDark } from '@uiw/codemirror-theme-solarized'
+import { editorLogger } from '../utils/logger'
 import './CodeMirrorEditor.css'
 
 interface CodeMirrorEditorProps {
@@ -30,7 +31,7 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
       return
     }
 
-    console.log('CodeMirror theme change from', currentTheme.current, 'to', theme)
+    editorLogger.themeChange(currentTheme.current, theme)
     currentTheme.current = theme
 
     // Clean up existing editor
@@ -76,7 +77,7 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
     ]
 
     // Apply Solarized theme
-    console.log('Applying CodeMirror theme:', theme)
+    editorLogger.themeApplying(theme)
     if (theme === 'solarized-dark') {
       extensions.push(solarizedDark)
     } else {

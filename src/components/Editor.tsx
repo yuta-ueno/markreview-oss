@@ -1,6 +1,7 @@
 import { useEffect, useState, forwardRef } from 'react'
 import CodeMirrorEditor from './CodeMirrorEditor'
 import { AppSettings } from '../types/settings'
+import { themeLogger } from '../utils/logger'
 import './Editor.css'
 
 interface EditorProps {
@@ -20,17 +21,17 @@ const Editor = forwardRef<HTMLDivElement, EditorProps>(({
 
   useEffect(() => {
     const updateTheme = () => {
-      console.log('Editor theme update:', settings.theme)
+      themeLogger.editorThemeUpdate(settings.theme)
       if (settings.theme === 'auto') {
         // Use system preference for auto theme
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
         const newTheme = mediaQuery.matches ? 'solarized-dark' : 'solarized-light'
-        console.log('Auto theme detected:', newTheme)
+        themeLogger.autoThemeDetected(newTheme)
         setEditorTheme(newTheme)
       } else {
         // Use selected theme directly
         const newTheme = settings.theme as 'solarized-light' | 'solarized-dark'
-        console.log('Direct theme set:', newTheme)
+        themeLogger.directThemeSet(newTheme)
         setEditorTheme(newTheme)
       }
     }
@@ -42,7 +43,7 @@ const Editor = forwardRef<HTMLDivElement, EditorProps>(({
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
       const handleThemeChange = (e: MediaQueryListEvent) => {
         const newTheme = e.matches ? 'solarized-dark' : 'solarized-light'
-        console.log('System theme changed to:', newTheme)
+        themeLogger.systemThemeChanged(newTheme)
         setEditorTheme(newTheme)
       }
       

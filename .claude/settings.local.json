@@ -86,7 +86,8 @@
       "Bash(dir:*)",
       "Bash(\"./src-tauri/target/release/markreview.exe\" \"test-file.md\")",
       "Bash(reg query:*)",
-      "mcp__serena__delete_memory"
+      "mcp__serena__delete_memory",
+      "Bash(/bashes)"
     ],
     "deny": [],
     "ask": []

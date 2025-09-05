@@ -19,6 +19,10 @@ import { APP_CONFIG } from './utils/constants'
 import './App.css'
 
 function App() {
+  // Simplified debugging - remove alert dependencies
+  console.log('React App Console Log - App started')
+  
+  
   const [markdownContent, setMarkdownContent] = useState(DEFAULT_CONTENT)
   const [filename, setFilename] = useState('Untitled.md')
   const [currentFilePath, setCurrentFilePath] = useState<string | null>(null)
@@ -32,16 +36,27 @@ function App() {
 
   // Content change handler for file operations
   const handleContentChange = useCallback((content: string, filename: string, filePath: string | null, hasChanges: boolean) => {
+    console.log('Content change:', { filename, filePath, contentLength: content.length, hasChanges })
     setMarkdownContent(content)
     setOriginalContent(hasChanges ? originalContent : content)
     setFilename(filename)
     setCurrentFilePath(filePath)
     setHasUnsavedChanges(hasChanges)
+    
+    // DOM-based feedback for file loading
+    const statusDiv = document.getElementById('react-status')
+    if (statusDiv) {
+      statusDiv.innerHTML = `<div style="position:fixed;top:0;left:0;z-index:9999;background:blue;color:white;padding:5px;font-size:12px;">✓ FILE: ${filename}</div>`
+      setTimeout(() => {
+        if (statusDiv.parentNode) statusDiv.parentNode.removeChild(statusDiv)
+      }, 3000)
+    }
   }, [originalContent])
 
   // Tauri integration with file drop support
   const { isTauri, readTextFile } = useTauriIntegration({
     onFileDropped: async (filePath: string) => {
+      console.log('File dropped via Tauri:', filePath)
       // This will be handled by the file operations hook
       await handleTauriFileDrop(filePath)
     }
@@ -127,8 +142,8 @@ function App() {
       componentName="App"
       showToast={showToast}
     >
-      <div className="app" {...(!isTauri ? dragAndDropProps : {})}>
-        {isDragging && !isTauri && (
+      <div className="app" {...dragAndDropProps}>
+        {isDragging && (
           <div className="drag-overlay">
             <div className="drag-message">
               <h2>Drop your Markdown file here</h2>

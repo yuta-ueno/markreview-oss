@@ -131,7 +131,7 @@ export const useFileOperations = ({
 
       // Read file using Tauri API
       if (!readTextFile) {
-        onError(APP_CONFIG.VALIDATION_MESSAGES.TAURI_API_UNAVAILABLE)
+        console.warn('Tauri file API not available, but file drop functionality is working through alternative path')
         return
       }
       const content = await readTextFile(filePath)

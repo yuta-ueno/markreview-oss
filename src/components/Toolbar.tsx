@@ -16,7 +16,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   onOpen,
   onSave,
   onSettings,
-  content,
+  content: _content,
   filename,
   hasUnsavedChanges = false,
 }) => {
@@ -63,23 +63,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onSave()
   }
 
-  const handleExportHTML = () => {
-    // This would use the markdown processing pipeline
-    // For now, we'll export the raw markdown with HTML extension
-    const blob = new Blob([content], { type: 'text/html;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    
-    const a = document.createElement('a')
-    a.href = url
-    a.download = filename.replace(/\.(md|markdown)$/i, '.html') || 'document.html'
-    a.style.display = 'none'
-    
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    
-    URL.revokeObjectURL(url)
-  }
 
   return (
     <div className="toolbar">
@@ -114,17 +97,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
         <div className="toolbar-separator" />
 
-        <button
-          className="toolbar-button"
-          onClick={handleExportHTML}
-          title="Export as HTML"
-        >
-          <span className="toolbar-icon">🌐</span>
-          Export HTML
-        </button>
-      </div>
-
-      <div className="toolbar-section toolbar-actions">
         {onSettings && (
           <button
             className="toolbar-button"
@@ -135,6 +107,9 @@ const Toolbar: React.FC<ToolbarProps> = ({
             Settings
           </button>
         )}
+      </div>
+
+      <div className="toolbar-section toolbar-actions">
       </div>
 
       <div className="toolbar-section toolbar-info">

@@ -19,6 +19,7 @@
   box-shadow: 0 20px 60px var(--shadow-color);
   width: 90%;
   max-width: 800px;
+  height: 600px;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -62,7 +63,7 @@
   background-color: var(--bg-hover);
 }
 
-.settings-content {
+.settings-body {
   display: flex;
   flex: 1;
   overflow: hidden;
@@ -107,6 +108,8 @@
 
 .settings-main {
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   padding: 24px;
   overflow-y: auto;
   background-color: var(--bg-primary);
@@ -177,6 +180,25 @@
 
 .settings-item-control {
   flex-shrink: 0;
+}
+
+.settings-description {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.settings-tips {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.settings-tips li {
+  margin-bottom: 8px;
+  line-height: 1.4;
 }
 
 /* Form controls */
@@ -347,10 +369,11 @@
 @media (max-width: 768px) {
   .settings-panel {
     width: 95%;
+    height: 85vh;
     max-height: 90vh;
   }
   
-  .settings-content {
+  .settings-body {
     flex-direction: column;
   }
   

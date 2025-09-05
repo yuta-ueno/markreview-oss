@@ -68,31 +68,45 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     switch (activeTab) {
       case 'general':
         return (
-          <div className="settings-tab-content">
-            <div className="settings-group">
-              <h3>Theme</h3>
-              <div className="setting-item">
-                <label>Color Theme</label>
-                <select 
-                  value={settings.theme} 
-                  onChange={(e) => handleThemeChange(e.target.value as ThemeMode)}
-                >
-                  <option value="auto">Auto (System)</option>
-                  <option value="solarized-light">Solarized Light</option>
-                  <option value="solarized-dark">Solarized Dark</option>
-                </select>
+          <div className="settings-main">
+            <div className="settings-section">
+              <h3 className="settings-section-title">Appearance</h3>
+              
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Color Theme</div>
+                  <div className="settings-item-description">Set the overall appearance of the application</div>
+                </div>
+                <div className="settings-item-control">
+                  <select 
+                    className="settings-select"
+                    value={settings.theme} 
+                    onChange={(e) => handleThemeChange(e.target.value as ThemeMode)}
+                  >
+                    <option value="auto">Auto (System)</option>
+                    <option value="solarized-light">Solarized Light</option>
+                    <option value="solarized-dark">Solarized Dark</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <div className="settings-group">
-              <h3>Application</h3>
-              <div className="setting-item">
-                <label>Scroll Synchronization</label>
-                <input
-                  type="checkbox"
-                  checked={settings.preview.syncScroll}
-                  onChange={(e) => handlePreviewChange('syncScroll', e.target.checked)}
-                />
+            <div className="settings-section">
+              <h3 className="settings-section-title">Behavior</h3>
+              
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Scroll Synchronization</div>
+                  <div className="settings-item-description">Synchronize scrolling between editor and preview</div>
+                </div>
+                <div className="settings-item-control">
+                  <input
+                    type="checkbox"
+                    className="settings-checkbox"
+                    checked={settings.preview.syncScroll}
+                    onChange={(e) => handlePreviewChange('syncScroll', e.target.checked)}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -100,74 +114,114 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
       case 'editor':
         return (
-          <div className="settings-tab-content">
-            <div className="settings-group">
-              <h3>Font & Display</h3>
-              <div className="setting-item">
-                <label>Font Size</label>
-                <input
-                  type="range"
-                  min="8"
-                  max="32"
-                  value={settings.editor.fontSize}
-                  onChange={(e) => handleEditorChange('fontSize', parseInt(e.target.value))}
-                />
-                <span className="setting-value">{settings.editor.fontSize}px</span>
+          <div className="settings-main">
+            <div className="settings-section">
+              <h3 className="settings-section-title">Font & Display</h3>
+              
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Font Size</div>
+                  <div className="settings-item-description">Adjust the font size of the editor</div>
+                </div>
+                <div className="settings-item-control">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <input
+                      type="range"
+                      className="settings-range"
+                      min="8"
+                      max="32"
+                      value={settings.editor.fontSize}
+                      onChange={(e) => handleEditorChange('fontSize', parseInt(e.target.value))}
+                    />
+                    <span className="setting-value">{settings.editor.fontSize}px</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="setting-item">
-                <label>Font Family</label>
-                <select
-                  value={settings.editor.fontFamily}
-                  onChange={(e) => handleEditorChange('fontFamily', e.target.value)}
-                >
-                  <option value="Monaco, Menlo, Ubuntu Mono, Consolas, monospace">Monaco</option>
-                  <option value="'Fira Code', Monaco, Menlo, monospace">Fira Code</option>
-                  <option value="'Source Code Pro', Monaco, Menlo, monospace">Source Code Pro</option>
-                  <option value="'JetBrains Mono', Monaco, Menlo, monospace">JetBrains Mono</option>
-                </select>
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Font Family</div>
+                  <div className="settings-item-description">Select the font family used in the editor</div>
+                </div>
+                <div className="settings-item-control">
+                  <select
+                    className="settings-select"
+                    value={settings.editor.fontFamily}
+                    onChange={(e) => handleEditorChange('fontFamily', e.target.value)}
+                  >
+                    <option value="Monaco, Menlo, Ubuntu Mono, Consolas, monospace">Monaco</option>
+                    <option value="'Fira Code', Monaco, Menlo, monospace">Fira Code</option>
+                    <option value="'Source Code Pro', Monaco, Menlo, monospace">Source Code Pro</option>
+                    <option value="'JetBrains Mono', Monaco, Menlo, monospace">JetBrains Mono</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="setting-item">
-                <label>Tab Size</label>
-                <select
-                  value={settings.editor.tabSize}
-                  onChange={(e) => handleEditorChange('tabSize', parseInt(e.target.value))}
-                >
-                  <option value={2}>2 spaces</option>
-                  <option value={4}>4 spaces</option>
-                  <option value={8}>8 spaces</option>
-                </select>
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Tab Size</div>
+                  <div className="settings-item-description">Number of spaces used for indentation</div>
+                </div>
+                <div className="settings-item-control">
+                  <select
+                    className="settings-select"
+                    value={settings.editor.tabSize}
+                    onChange={(e) => handleEditorChange('tabSize', parseInt(e.target.value))}
+                  >
+                    <option value={2}>2 spaces</option>
+                    <option value={4}>4 spaces</option>
+                    <option value={8}>8 spaces</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <div className="settings-group">
-              <h3>Editor Features</h3>
-              <div className="setting-item">
-                <label>Word Wrap</label>
-                <input
-                  type="checkbox"
-                  checked={settings.editor.wordWrap}
-                  onChange={(e) => handleEditorChange('wordWrap', e.target.checked)}
-                />
+            <div className="settings-section">
+              <h3 className="settings-section-title">Editor Features</h3>
+              
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Word Wrap</div>
+                  <div className="settings-item-description">Automatically wrap long lines</div>
+                </div>
+                <div className="settings-item-control">
+                  <input
+                    type="checkbox"
+                    className="settings-checkbox"
+                    checked={settings.editor.wordWrap}
+                    onChange={(e) => handleEditorChange('wordWrap', e.target.checked)}
+                  />
+                </div>
               </div>
 
-              <div className="setting-item">
-                <label>Line Numbers</label>
-                <input
-                  type="checkbox"
-                  checked={settings.editor.lineNumbers}
-                  onChange={(e) => handleEditorChange('lineNumbers', e.target.checked)}
-                />
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Line Numbers</div>
+                  <div className="settings-item-description">Display line numbers in the editor</div>
+                </div>
+                <div className="settings-item-control">
+                  <input
+                    type="checkbox"
+                    className="settings-checkbox"
+                    checked={settings.editor.lineNumbers}
+                    onChange={(e) => handleEditorChange('lineNumbers', e.target.checked)}
+                  />
+                </div>
               </div>
 
-              <div className="setting-item">
-                <label>Minimap</label>
-                <input
-                  type="checkbox"
-                  checked={settings.editor.minimap}
-                  onChange={(e) => handleEditorChange('minimap', e.target.checked)}
-                />
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Minimap</div>
+                  <div className="settings-item-description">Display an overview of the entire code</div>
+                </div>
+                <div className="settings-item-control">
+                  <input
+                    type="checkbox"
+                    className="settings-checkbox"
+                    checked={settings.editor.minimap}
+                    onChange={(e) => handleEditorChange('minimap', e.target.checked)}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -175,44 +229,64 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
       case 'preview':
         return (
-          <div className="settings-tab-content">
-            <div className="settings-group">
-              <h3>Layout</h3>
-              <div className="setting-item">
-                <label>Max Width</label>
-                <select
-                  value={settings.preview.maxWidth}
-                  onChange={(e) => handlePreviewChange('maxWidth', 
-                    e.target.value === 'full' ? 'full' : parseInt(e.target.value)
-                  )}
-                >
-                  <option value="full">Full Width</option>
-                  <option value={600}>600px</option>
-                  <option value={800}>800px</option>
-                  <option value={1000}>1000px</option>
-                  <option value={1200}>1200px</option>
-                </select>
+          <div className="settings-main">
+            <div className="settings-section">
+              <h3 className="settings-section-title">Layout</h3>
+              
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Max Width</div>
+                  <div className="settings-item-description">Set the maximum width of the preview area</div>
+                </div>
+                <div className="settings-item-control">
+                  <select
+                    className="settings-select"
+                    value={settings.preview.maxWidth}
+                    onChange={(e) => handlePreviewChange('maxWidth', 
+                      e.target.value === 'full' ? 'full' : parseInt(e.target.value)
+                    )}
+                  >
+                    <option value="full">Full Width</option>
+                    <option value={600}>600px</option>
+                    <option value={800}>800px</option>
+                    <option value={1000}>1000px</option>
+                    <option value={1200}>1200px</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <div className="settings-group">
-              <h3>Display</h3>
-              <div className="setting-item">
-                <label>Show Line Numbers</label>
-                <input
-                  type="checkbox"
-                  checked={settings.preview.showLineNumbers}
-                  onChange={(e) => handlePreviewChange('showLineNumbers', e.target.checked)}
-                />
+            <div className="settings-section">
+              <h3 className="settings-section-title">Display Options</h3>
+              
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Show Line Numbers</div>
+                  <div className="settings-item-description">Display line numbers in preview</div>
+                </div>
+                <div className="settings-item-control">
+                  <input
+                    type="checkbox"
+                    className="settings-checkbox"
+                    checked={settings.preview.showLineNumbers}
+                    onChange={(e) => handlePreviewChange('showLineNumbers', e.target.checked)}
+                  />
+                </div>
               </div>
 
-              <div className="setting-item">
-                <label>Highlight Current Line</label>
-                <input
-                  type="checkbox"
-                  checked={settings.preview.highlightCurrentLine}
-                  onChange={(e) => handlePreviewChange('highlightCurrentLine', e.target.checked)}
-                />
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Highlight Current Line</div>
+                  <div className="settings-item-description">Highlight the currently editing line in preview</div>
+                </div>
+                <div className="settings-item-control">
+                  <input
+                    type="checkbox"
+                    className="settings-checkbox"
+                    checked={settings.preview.highlightCurrentLine}
+                    onChange={(e) => handlePreviewChange('highlightCurrentLine', e.target.checked)}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -220,36 +294,55 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
       case 'export':
         return (
-          <div className="settings-tab-content">
-            <div className="settings-group">
-              <h3>Export Options</h3>
-              <div className="setting-item">
-                <label>Default Format</label>
-                <select
-                  value={settings.export.exportFormat}
-                  onChange={(e) => handleExportChange('exportFormat', e.target.value)}
-                >
-                  <option value="html">HTML</option>
-                  <option value="pdf">PDF</option>
-                </select>
+          <div className="settings-main">
+            <div className="settings-section">
+              <h3 className="settings-section-title">Export Options</h3>
+              
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Default Format</div>
+                  <div className="settings-item-description">Default format when exporting files</div>
+                </div>
+                <div className="settings-item-control">
+                  <select
+                    className="settings-select"
+                    value={settings.export.exportFormat}
+                    onChange={(e) => handleExportChange('exportFormat', e.target.value)}
+                  >
+                    <option value="html">HTML</option>
+                    <option value="pdf">PDF</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="setting-item">
-                <label>Include CSS Styling</label>
-                <input
-                  type="checkbox"
-                  checked={settings.export.includeCSS}
-                  onChange={(e) => handleExportChange('includeCSS', e.target.checked)}
-                />
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Include CSS Styling</div>
+                  <div className="settings-item-description">Include custom CSS styles when exporting</div>
+                </div>
+                <div className="settings-item-control">
+                  <input
+                    type="checkbox"
+                    className="settings-checkbox"
+                    checked={settings.export.includeCSS}
+                    onChange={(e) => handleExportChange('includeCSS', e.target.checked)}
+                  />
+                </div>
               </div>
 
-              <div className="setting-item">
-                <label>Include Document Title</label>
-                <input
-                  type="checkbox"
-                  checked={settings.export.includeTitle}
-                  onChange={(e) => handleExportChange('includeTitle', e.target.checked)}
-                />
+              <div className="settings-item">
+                <div className="settings-item-label">
+                  <div className="settings-item-title">Include Document Title</div>
+                  <div className="settings-item-description">Include document title in exported files</div>
+                </div>
+                <div className="settings-item-control">
+                  <input
+                    type="checkbox"
+                    className="settings-checkbox"
+                    checked={settings.export.includeTitle}
+                    onChange={(e) => handleExportChange('includeTitle', e.target.checked)}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -257,12 +350,13 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
       case 'shortcuts':
         return (
-          <div className="settings-tab-content">
-            <div className="settings-group">
-              <h3>Keyboard Shortcuts</h3>
+          <div className="settings-main">
+            <div className="settings-section">
+              <h3 className="settings-section-title">Keyboard Shortcuts</h3>
               <p className="settings-description">
                 Customize keyboard shortcuts for common actions. Use Ctrl+ (Windows/Linux) or Cmd+ (Mac) combinations.
               </p>
+              
               <div className="shortcuts-list">
                 {Object.entries(settings.shortcuts).map(([action, shortcut]) => (
                   <ShortcutEditor
@@ -274,8 +368,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   />
                 ))}
               </div>
-              <div className="settings-group">
-                <h4>Tips</h4>
+              
+              <div className="settings-section">
+                <h4 className="settings-group-title">Tips</h4>
                 <ul className="settings-tips">
                   <li>Use modifier keys (Ctrl, Alt, Shift) for better compatibility</li>
                   <li>Click &quot;Record&quot; and press your desired key combination</li>
@@ -303,7 +398,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
         </div>
 
         <div className="settings-body">
-          <div className="settings-tabs">
+          <div className="settings-sidebar">
             <button
               className={`settings-tab ${activeTab === 'general' ? 'active' : ''}`}
               onClick={() => setActiveTab('general')}
@@ -336,9 +431,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             </button>
           </div>
 
-          <div className="settings-content">
-            {renderTabContent()}
-          </div>
+          {renderTabContent()}
         </div>
 
         <div className="settings-footer">

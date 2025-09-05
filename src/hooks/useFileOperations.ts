@@ -1,31 +1,8 @@
 import { useCallback } from 'react'
 import { saveAsFile, saveFile, validateFileContent } from '../utils/file'
+import { APP_CONFIG, getFileExtensionFromPath, isValidFileSize } from '../utils/constants'
 
-export interface FileOperationHandlers {
-  onSuccess: (message: string) => void
-  onError: (message: string) => void
-}
-
-export interface FileOperationResult {
-  handleNew: () => void
-  handleOpen: (content: string, filename: string) => void
-  handleSave: () => Promise<void>
-  handleFileRead: (files: File[]) => void
-  handleTauriFileDrop: (filePath: string) => Promise<void>
-  triggerFileOpen: () => void
-}
-
-export interface UseFileOperationsOptions {
-  isTauri: boolean
-  markdownContent: string
-  filename: string
-  currentFilePath: string | null
-  handlers: FileOperationHandlers
-  readTextFile: ((filePath: string) => Promise<string>) | null
-  onContentChange: (content: string, filename: string, filePath: string | null, hasChanges: boolean) => void
-}
-
-const DEFAULT_CONTENT = `# Welcome to MarkReview
+export const DEFAULT_CONTENT = `# Welcome to MarkReview
 
 Start typing your **Markdown** content here!
 
@@ -55,6 +32,30 @@ function hello(name) {
 
 > This is a blockquote example.`
 
+export interface FileOperationHandlers {
+  onSuccess: (message: string) => void
+  onError: (message: string) => void
+}
+
+export interface FileOperationResult {
+  handleNew: () => void
+  handleOpen: (content: string, filename: string) => void
+  handleSave: () => Promise<void>
+  handleFileRead: (files: File[]) => void
+  handleTauriFileDrop: (filePath: string) => Promise<void>
+  triggerFileOpen: () => void
+}
+
+export interface UseFileOperationsOptions {
+  isTauri: boolean
+  markdownContent: string
+  filename: string
+  currentFilePath: string | null
+  handlers: FileOperationHandlers
+  readTextFile: ((filePath: string) => Promise<string>) | null
+  onContentChange: (content: string, filename: string, filePath: string | null, hasChanges: boolean) => void
+}
+
 export const useFileOperations = ({
   isTauri,
   markdownContent,
@@ -68,7 +69,7 @@ export const useFileOperations = ({
 
   // Handle new file creation
   const handleNew = useCallback(() => {
-    onContentChange(DEFAULT_CONTENT, 'Untitled.md', null, false)
+    onContentChange(DEFAULT_CONTENT, APP_CONFIG.DEFAULT_FILENAME, null, false)
   }, [onContentChange])
 
   // Handle file opening
@@ -80,7 +81,7 @@ export const useFileOperations = ({
     }
 
     onContentChange(content, filename, null, false)
-    onSuccess(`File "${filename}" opened successfully`)
+    onSuccess(APP_CONFIG.SUCCESS_MESSAGES.FILE_OPENED(filename))
   }, [onContentChange, onError, onSuccess])
 
   // Handle file saving
@@ -101,12 +102,12 @@ export const useFileOperations = ({
       }
     } else {
       // Fallback to browser download
-      const blob = new Blob([markdownContent], { type: 'text/markdown;charset=utf-8' })
+      const blob = new Blob([markdownContent], { type: APP_CONFIG.DOWNLOAD_MIME_TYPE })
       const url = URL.createObjectURL(blob)
       
       const a = document.createElement('a')
       a.href = url
-      a.download = filename || 'document.md'
+      a.download = filename || APP_CONFIG.FALLBACK_FILENAME
       a.style.display = 'none'
       
       document.body.appendChild(a)
@@ -115,7 +116,7 @@ export const useFileOperations = ({
       URL.revokeObjectURL(url)
       
       onContentChange(markdownContent, filename, currentFilePath, false)
-      onSuccess(`File "${filename}" saved successfully`)
+      onSuccess(APP_CONFIG.SUCCESS_MESSAGES.FILE_SAVED(filename))
     }
   }, [isTauri, currentFilePath, markdownContent, filename, onSuccess, onContentChange])
 
@@ -123,21 +124,21 @@ export const useFileOperations = ({
   const handleTauriFileDrop = useCallback(async (filePath: string) => {
     try {
       // Validate file extension
-      if (!filePath.match(/\.(md|markdown|txt)$/i)) {
-        onError('Please select a Markdown file (.md, .markdown, or .txt)')
+      if (!APP_CONFIG.SUPPORTED_FILE_PATTERN.test(filePath)) {
+        onError(APP_CONFIG.VALIDATION_MESSAGES.INVALID_FILE_TYPE)
         return
       }
 
       // Read file using Tauri API
       if (!readTextFile) {
-        onError('Tauri file API not available')
+        onError(APP_CONFIG.VALIDATION_MESSAGES.TAURI_API_UNAVAILABLE)
         return
       }
       const content = await readTextFile(filePath)
-      const fileName = filePath.split(/[/\\]/).pop() || 'Unknown.md'
+      const fileName = getFileExtensionFromPath(filePath)
       
       onContentChange(content, fileName, filePath, false)
-      onSuccess(`File "${fileName}" opened successfully`)
+      onSuccess(APP_CONFIG.SUCCESS_MESSAGES.FILE_OPENED(fileName))
     } catch (err) {
       console.error('Error reading dropped file:', err)
       onError(`Failed to read file: ${err}`)
@@ -150,14 +151,14 @@ export const useFileOperations = ({
     if (!file) return
 
     // Validate file type
-    if (!file.name.match(/\.(md|markdown|txt)$/i)) {
-      onError('Please select a Markdown file (.md, .markdown, or .txt)')
+    if (!APP_CONFIG.SUPPORTED_FILE_PATTERN.test(file.name)) {
+      onError(APP_CONFIG.VALIDATION_MESSAGES.INVALID_FILE_TYPE)
       return
     }
 
-    // Validate file size (10MB limit)
-    if (file.size > 10 * 1024 * 1024) {
-      onError('File is too large (maximum 10MB)')
+    // Validate file size
+    if (!isValidFileSize(file.size)) {
+      onError(APP_CONFIG.VALIDATION_MESSAGES.FILE_TOO_LARGE)
       return
     }
 
@@ -167,7 +168,7 @@ export const useFileOperations = ({
       handleOpen(content, file.name)
     }
     reader.onerror = () => {
-      onError('Error reading file')
+      onError(APP_CONFIG.VALIDATION_MESSAGES.FILE_READ_ERROR)
     }
     reader.readAsText(file)
   }, [handleOpen, onError])
@@ -177,7 +178,7 @@ export const useFileOperations = ({
     // Create a temporary file input to trigger the open dialog
     const input = document.createElement('input')
     input.type = 'file'
-    input.accept = '.md,.markdown,.txt'
+    input.accept = APP_CONFIG.SUPPORTED_FILE_EXTENSIONS.join(',')
     input.style.display = 'none'
     
     input.onchange = (e) => {

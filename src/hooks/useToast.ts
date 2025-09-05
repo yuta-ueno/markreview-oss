@@ -33,7 +33,7 @@ export const useToast = ({ defaultDuration = 4000 }: UseToastOptions = {}) => {
     setToasts([])
   }, [])
 
-  // Convenience methods
+  // Enhanced convenience methods with type parameter
   const success = useCallback((message: string, duration?: number) => {
     addToast(message, 'success', duration)
   }, [addToast])
@@ -50,11 +50,17 @@ export const useToast = ({ defaultDuration = 4000 }: UseToastOptions = {}) => {
     addToast(message, 'info', duration)
   }, [addToast])
 
+  // Enhanced toast method with type parameter
+  const showToast = useCallback((message: string, type: ToastMessage['type'] = 'info', duration?: number) => {
+    addToast(message, type, duration)
+  }, [addToast])
+
   return {
     toasts,
     addToast,
     removeToast,
     clearAllToasts,
+    showToast,
     success,
     error,
     warning,

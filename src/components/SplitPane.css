@@ -13,7 +13,7 @@
 
 .split-pane-divider {
   width: 4px;
-  background-color: #e5e5e5;
+  background-color: var(--border-color);
   cursor: col-resize;
   flex-shrink: 0;
   position: relative;
@@ -21,11 +21,11 @@
 }
 
 .split-pane-divider:hover {
-  background-color: #007acc;
+  background-color: var(--accent-color);
 }
 
 .split-pane-divider.dragging {
-  background-color: #007acc;
+  background-color: var(--accent-color);
   transition: none;
 }
 
@@ -37,16 +37,4 @@
   right: -2px;
   bottom: 0;
   cursor: col-resize;
-}
-
-/* Dark theme support */
-@media (prefers-color-scheme: dark) {
-  .split-pane-divider {
-    background-color: #444;
-  }
-
-  .split-pane-divider:hover,
-  .split-pane-divider.dragging {
-    background-color: #007acc;
-  }
 }

@@ -25,13 +25,19 @@
 :root {
   --text-color: var(--sol-base00);
   --text-muted: var(--sol-base1);
+  --text-secondary: var(--sol-base1);
   --bg-primary: var(--sol-base3);
   --bg-secondary: var(--sol-base2);
   --bg-tertiary: #eee8d5;
   --bg-hover: #e3dcc9;
+  --hover-bg: #e3dcc9;
   --border-color: var(--sol-base2);
   --accent-color: var(--sol-blue);
   --error-color: var(--sol-red);
+  --success-color: var(--sol-green);
+  --warning-color: var(--sol-orange);
+  --info-color: var(--sol-blue);
+  --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
 
@@ -39,26 +45,38 @@
 [data-theme="solarized-light"] {
   --text-color: var(--sol-base00);
   --text-muted: var(--sol-base1);
+  --text-secondary: var(--sol-base1);
   --bg-primary: var(--sol-base3);
   --bg-secondary: var(--sol-base2);
   --bg-tertiary: #f7f2e8;
   --bg-hover: #e6dcc5;
+  --hover-bg: #e6dcc5;
   --border-color: var(--sol-base2);
   --accent-color: var(--sol-blue);
   --error-color: var(--sol-red);
+  --success-color: var(--sol-green);
+  --warning-color: var(--sol-orange);
+  --info-color: var(--sol-blue);
+  --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
 /* Solarized Dark theme */
 [data-theme="solarized-dark"] {
   --text-color: var(--sol-base0);
   --text-muted: var(--sol-base01);
+  --text-secondary: var(--sol-base01);
   --bg-primary: var(--sol-base03);
   --bg-secondary: var(--sol-base02);
   --bg-tertiary: #0a3541;
   --bg-hover: #0f4450;
+  --hover-bg: #0f4450;
   --border-color: var(--sol-base02);
   --accent-color: var(--sol-cyan);
   --error-color: var(--sol-red);
+  --success-color: var(--sol-green);
+  --warning-color: var(--sol-orange);
+  --info-color: var(--sol-cyan);
+  --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 /* Auto theme - system preference */
@@ -66,13 +84,19 @@
   :root:not([data-theme]) {
     --text-color: var(--sol-base0);
     --text-muted: var(--sol-base01);
+    --text-secondary: var(--sol-base01);
     --bg-primary: var(--sol-base03);
     --bg-secondary: var(--sol-base02);
     --bg-tertiary: #0a3541;
     --bg-hover: #0f4450;
+    --hover-bg: #0f4450;
     --border-color: var(--sol-base02);
     --accent-color: var(--sol-cyan);
     --error-color: var(--sol-red);
+    --success-color: var(--sol-green);
+    --warning-color: var(--sol-orange);
+    --info-color: var(--sol-cyan);
+    --shadow-color: rgba(0, 0, 0, 0.3);
   }
 }
 

@@ -3,8 +3,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e5e5e5;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
   min-height: 40px;
 }
@@ -25,18 +25,18 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
-  color: #333;
+  color: var(--text-color);
   transition: all 0.2s ease;
   position: relative;
 }
 
 .toolbar-button:hover {
-  background-color: #e9ecef;
-  border-color: #dee2e6;
+  background-color: var(--bg-hover);
+  border-color: var(--border-color);
 }
 
 .toolbar-button:active {
-  background-color: #dee2e6;
+  background-color: var(--bg-tertiary);
 }
 
 .toolbar-icon {
@@ -46,13 +46,13 @@
 .toolbar-separator {
   width: 1px;
   height: 24px;
-  background-color: #dee2e6;
+  background-color: var(--border-color);
   margin: 0 4px;
 }
 
 .toolbar-filename {
   font-size: 13px;
-  color: #666;
+  color: var(--text-muted);
   font-weight: 500;
   max-width: 200px;
   overflow: hidden;
@@ -61,7 +61,7 @@
 }
 
 .unsaved-indicator {
-  color: #dc3545;
+  color: var(--error-color);
   font-weight: bold;
   margin-left: 2px;
 }
@@ -71,35 +71,6 @@
   top: 2px;
   right: 4px;
   font-size: 12px;
-}
-
-/* Dark theme support */
-@media (prefers-color-scheme: dark) {
-  .toolbar {
-    background-color: #252526;
-    border-bottom-color: #444;
-  }
-
-  .toolbar-button {
-    color: #cccccc;
-  }
-
-  .toolbar-button:hover {
-    background-color: #3c3c3c;
-    border-color: #555;
-  }
-
-  .toolbar-button:active {
-    background-color: #444;
-  }
-
-  .toolbar-separator {
-    background-color: #555;
-  }
-
-  .toolbar-filename {
-    color: #cccccc;
-  }
 }
 
 /* Responsive design */

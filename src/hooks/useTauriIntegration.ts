@@ -23,7 +23,7 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
   // Check if running in Tauri environment
   const checkTauriEnvironment = useCallback(() => {
     const hasTauriGlobal = typeof window !== 'undefined' && '__TAURI__' in window
-    const hasTauriInternalApi = typeof window !== 'undefined' && (window as any).__TAURI_INTERNALS__
+    const hasTauriInternalApi = typeof window !== 'undefined' && (window as { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__
     
     // Check for Tauri environment (dev and production)
     const isDev = window.location.hostname === 'localhost' && window.location.port === '5173'
@@ -41,7 +41,7 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
       windowKeys: typeof window !== 'undefined' ? Object.keys(window).filter(k => k.includes('TAURI')) : []
     })
     return isTauriEnv
-  }, [showDebugInfo])
+  }, [])
 
   // Initialize Tauri APIs using Tauri 2.0 plugin system
   const initTauriAPIs = useCallback(async () => {
@@ -72,7 +72,7 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
       showDebugInfo('✅ Tauri 2.0 Event System loaded!', 'success')
       
       // Tauri 2.0: Listen for drag-drop event
-      const unlistenDrop = await listen(APP_CONFIG.TAURI_FILE_DROP_EVENT, (event: any) => {
+      const unlistenDrop = await listen(APP_CONFIG.TAURI_FILE_DROP_EVENT, (event: { payload?: { paths?: string[] } }) => {
         tauriLogger.fileDropReceived(event)
         console.log('Tauri drag-drop event received:', event)
         showDebugInfo(`📁 Drag & Drop: ${event.payload?.paths?.[0] || 'unknown'}`, 'success')
@@ -87,11 +87,11 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
       })
 
       // Optional: Listen for drag-enter/leave for visual feedback
-      const unlistenEnter = await listen(APP_CONFIG.TAURI_DRAG_ENTER_EVENT, (event: any) => {
+      const unlistenEnter = await listen(APP_CONFIG.TAURI_DRAG_ENTER_EVENT, (event: unknown) => {
         console.log('Drag enter:', event)
       })
 
-      const unlistenLeave = await listen(APP_CONFIG.TAURI_DRAG_LEAVE_EVENT, (event: any) => {
+      const unlistenLeave = await listen(APP_CONFIG.TAURI_DRAG_LEAVE_EVENT, (event: unknown) => {
         console.log('Drag leave:', event)
       })
       
@@ -124,7 +124,7 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
       
       console.log('Available APP_CONFIG.TAURI_FILE_ARGS_EVENT:', APP_CONFIG.TAURI_FILE_ARGS_EVENT)
       
-      const unlisten = await listen(APP_CONFIG.TAURI_FILE_ARGS_EVENT, (event: any) => {
+      const unlisten = await listen(APP_CONFIG.TAURI_FILE_ARGS_EVENT, (event: { payload?: unknown }) => {
         console.log('✅✅✅ TAURI 2.0 FILE ARGS EVENT RECEIVED ✅✅✅:', event)
         console.log('Event payload type:', typeof event.payload)
         console.log('Event payload value:', event.payload)
@@ -135,14 +135,14 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
         if (event.payload && typeof event.payload === 'string') {
           console.log('Processing command line file:', event.payload)
           console.log('Calling onFileDropped with:', event.payload)
-          showDebugInfo(`🔄 Loading file: ${event.payload.split(/[\\\/]/).pop()}`, 'info')
+          showDebugInfo(`Loading file: ${event.payload.split(/[\\/]/).pop()}`, 'info')
           
           // Call the file handler
           onFileDropped(event.payload)
           
           // Show success feedback
           setTimeout(() => {
-            showDebugInfo(`✅ File processing initiated for: ${event.payload.split(/[\\\/]/).pop()}`, 'success')
+            showDebugInfo(`File processing initiated for: ${(event.payload as string).split(/[\\/]/).pop()}`, 'success')
           }, 1000)
         } else {
           console.log('Invalid payload format or empty payload')

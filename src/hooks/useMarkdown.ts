@@ -17,6 +17,7 @@ export interface MarkdownProcessingOptions {
 }
 
 // Cache for processed processors to avoid recreation
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const processorCache = new Map<string, any>()
 
 // Create processor with caching

@@ -23,10 +23,7 @@ export default defineConfig({
     // Increase chunk size warning limit for large bundled modules
     chunkSizeWarningLimit: 600,
     rollupOptions: {
-      external: [
-        '@tauri-apps/api/fs',
-        '@tauri-apps/api/event',
-      ],
+      // Removed external modules - bundle Tauri APIs for proper module resolution
       output: {
         // Manual chunk splitting for better caching and loading
         manualChunks: {
@@ -48,6 +45,7 @@ export default defineConfig({
           ],
           // Tauri API chunk
           'tauri-vendor': [
+            '@tauri-apps/api',
             '@tauri-apps/plugin-dialog',
             '@tauri-apps/plugin-fs'
           ]
@@ -73,8 +71,8 @@ export default defineConfig({
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: true, // Remove console.log in production
-        drop_debugger: true
+        drop_console: false, // Keep console.log for debugging
+        drop_debugger: false
       }
     },
     // Source maps for debugging
@@ -82,7 +80,5 @@ export default defineConfig({
     // Target modern browsers for smaller bundles
     target: 'es2020'
   },
-  optimizeDeps: {
-    exclude: ['@tauri-apps/api'],
-  },
+  // Allow Tauri APIs to be optimized and bundled properly
 })

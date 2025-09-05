@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Serena Memory Handling
+- Always check .serena/memories before starting any work.
+- Update .serena/memories at each major work milestone.
+- If the number of files under .serena/memories exceeds 5, consolidate and organize them.
+- When organizing, keep only content that is useful for future development and operations.
+
 ## Project Overview
 
 A lightweight, cross-platform desktop application built with Tauri + React for handling AI-generated Markdown in a workflow of *view first (Viewer)* and *edit as needed (Editor)*.

@@ -19,7 +19,10 @@ export const APP_CONFIG = {
   
   // Tauri settings
   TAURI_RETRY_DELAY: 100, // ms - Delay before retrying Tauri detection
-  TAURI_FILE_DROP_EVENT: 'tauri://file-drop',
+  TAURI_FILE_DROP_EVENT: 'tauri://drag-drop', // Tauri 2.0 updated event name
+  TAURI_DRAG_ENTER_EVENT: 'tauri://drag-enter',
+  TAURI_DRAG_LEAVE_EVENT: 'tauri://drag-leave',
+  TAURI_FILE_ARGS_EVENT: 'tauri://file-args',
   
   // Split pane settings
   DEFAULT_SPLIT_RATIO: 50, // % - Default left/right pane ratio

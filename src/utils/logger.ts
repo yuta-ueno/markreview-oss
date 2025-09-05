@@ -1,27 +1,33 @@
 // Logger utility for environment-based logging control
+ 
 export const logger = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   log: (...args: any[]) => {
     if (import.meta.env.DEV) {
       console.log(...args)
     }
   },
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: (...args: any[]) => {
     console.error(...args) // Always show errors
   },
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   warn: (...args: any[]) => {
     if (import.meta.env.DEV) {
       console.warn(...args)
     }
   },
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   info: (...args: any[]) => {
     if (import.meta.env.DEV) {
       console.info(...args)
     }
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   debug: (...args: any[]) => {
     if (import.meta.env.DEV) {
       console.debug(...args)
@@ -58,6 +64,7 @@ export const themeLogger = {
 
 // Tauri-specific logging helpers
 export const tauriLogger = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   environmentCheck: (details: any) => {
     logger.log('Checking Tauri environment:', details)
   },
@@ -90,6 +97,7 @@ export const tauriLogger = {
     logger.log('Tauri file drop listener setup complete')
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fileDropReceived: (event: any) => {
     logger.log('File drop event received:', event)
   },

@@ -1,1 +1,1 @@
-{}
+{"main-capability":{"identifier":"main-capability","description":"Main application capabilities","local":true,"windows":["*"],"permissions":["core:default","core:event:default","fs:default","fs:allow-read-file","fs:allow-read-text-file","fs:allow-write-file","fs:allow-write-text-file","fs:allow-download-read","fs:allow-download-read-recursive","fs:allow-document-read","fs:allow-document-read-recursive","fs:allow-home-read","fs:allow-home-read-recursive","dialog:default","dialog:allow-open","dialog:allow-save"]}}

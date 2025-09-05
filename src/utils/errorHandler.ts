@@ -18,6 +18,7 @@ export interface ErrorContext {
   component?: string
   userId?: string
   timestamp: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>
 }
 

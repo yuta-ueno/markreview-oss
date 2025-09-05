@@ -140,7 +140,7 @@ export const useOptimizedMarkdown = (
   content: string, 
   options: MarkdownProcessingOptions = {}
 ) => {
-  const startTime = useMemo(() => Date.now(), [content])
+  const startTime = useMemo(() => Date.now(), [])
   
   // Enhanced options with automatic optimizations for large content
   const enhancedOptions = useMemo(() => {
@@ -182,7 +182,7 @@ export const useOptimizedMarkdown = (
         console.warn('Slow markdown processing detected. Consider enabling virtualization or reducing content size.')
       }
     }
-  }, [processedContent, content.length, startTime, enhancedOptions])
+  }, [content.length, startTime, enhancedOptions])
 
   return processedContent
 }

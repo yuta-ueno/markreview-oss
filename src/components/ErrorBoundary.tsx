@@ -3,7 +3,7 @@ import { createErrorBoundaryHandler } from '../utils/errorHandler'
 import { logger } from '../utils/logger'
 import './ErrorBoundary.css'
 
-interface ErrorBoundaryProps {
+export interface ErrorBoundaryProps {
   children: ReactNode
   fallback?: (error: Error, retry: () => void) => ReactNode
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void
@@ -130,22 +130,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
     return this.props.children
   }
-}
-
-// Higher-order component for wrapping components with error boundary
-export const withErrorBoundary = <P extends object>(
-  Component: React.ComponentType<P>,
-  errorBoundaryProps?: Omit<ErrorBoundaryProps, 'children'>
-) => {
-  const WrappedComponent = (props: P) => (
-    <ErrorBoundary {...errorBoundaryProps}>
-      <Component {...props} />
-    </ErrorBoundary>
-  )
-  
-  WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`
-  
-  return WrappedComponent
 }
 
 export default ErrorBoundary

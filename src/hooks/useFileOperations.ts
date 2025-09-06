@@ -87,7 +87,7 @@ function hello(name) {
 
 ---
 
-**MarkReview v0.1.5** - 軽量Markdownエディター  
+**MarkReview v0.1.6** - 軽量Markdownエディター  
 新しいファイルを作成するには「NEW」ボタンをクリックしてください。`
 
 // 新規ファイル作成時は空のコンテンツを使用

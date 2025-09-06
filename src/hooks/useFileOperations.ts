@@ -2,35 +2,96 @@ import { useCallback } from 'react'
 import { saveAsFile, saveFile, validateFileContent } from '../utils/file'
 import { APP_CONFIG, getFileExtensionFromPath, isValidFileSize } from '../utils/constants'
 
-export const DEFAULT_CONTENT = `# Welcome to MarkReview
+export const DEFAULT_CONTENT = `# MarkReview - 操作マニュアル
 
-Start typing your **Markdown** content here!
+**MarkReview**へようこそ！軽量で高速なMarkdownエディター＆プレビューアーです。
 
-## Features
-- ✅ Live preview
-- ✅ Syntax highlighting  
-- ✅ GitHub Flavored Markdown
-- ✅ Tables, checkboxes, code blocks
+## 🚀 基本操作
 
-## Code Example
+### ファイル操作
+- **新規作成**: \`Ctrl+N\` または「NEW」ボタン
+- **ファイルを開く**: \`Ctrl+O\` または「OPEN」ボタン
+- **保存**: \`Ctrl+S\` または「SAVE」ボタン
+- **ドラッグ&ドロップ**: ファイルを直接アプリにドラッグして開く
+
+### エディター機能
+- **検索**: \`Ctrl+F\` でエディター内検索
+- **設定**: \`Ctrl+,\` または歯車アイコンで設定画面を開く
+- **リアルタイムプレビュー**: 右側でMarkdownをリアルタイム表示
+
+## 🎨 カスタマイズ
+
+### テーマ設定
+- **Solarized Light**: 明るく読みやすいテーマ
+- **Solarized Dark**: 目に優しいダークテーマ  
+- **Auto**: システム設定に従って自動切り替え
+
+### エディター設定
+- **フォントサイズ**: 8px〜32pxで調整可能
+- **フォント**: Monaco、Fira Code、Source Code Pro、JetBrains Mono
+- **タブサイズ**: 2、4、8スペース
+- **ワードラップ**: 長い行の自動折り返し
+
+## 📝 Markdown記法サンプル
+
+### 見出し
+\`\`\`markdown
+# 見出し1
+## 見出し2  
+### 見出し3
+\`\`\`
+
+### 強調
+\`\`\`markdown
+**太字** *斜体* ~~打ち消し~~
+\`\`\`
+
+### リスト
+\`\`\`markdown
+- 箇条書き1
+- 箇条書き2
+  - ネストしたアイテム
+
+1. 番号付きリスト
+2. アイテム2
+\`\`\`
+
+### チェックボックス
+- [x] 完了したタスク
+- [ ] 未完了のタスク
+
+### コードブロック
 \`\`\`javascript
 function hello(name) {
-  console.log(\`Hello, \${name}!\`)
+  console.log(\`Hello, \${name}!\`);
 }
 \`\`\`
 
-## Table Example
-| Feature | Status |
-|---------|--------|
-| Editor | ✅ Done |
-| Preview | ✅ Done |
-| Themes | ✅ Done |
+### テーブル
+| 機能 | 状態 | 説明 |
+|------|------|------|
+| リアルタイムプレビュー | ✅ | 編集と同時にプレビュー更新 |
+| ドラッグ&ドロップ | ✅ | ファイルを直接開ける |
+| テーマ切り替え | ✅ | 3つのテーマから選択 |
 
-## Task List
-- [x] Completed task
-- [ ] Pending task
+### 引用
+> これは引用文です。
+> 複数行にわたって記述できます。
 
-> This is a blockquote example.`
+## 💡 ヒント
+
+1. **新規ファイル**を作成すると、この内容はクリアされ空の状態になります
+2. **ファイル関連づけ**でMarkdownファイルを直接開けます
+3. **キーボードショートカット**で効率的に作業できます
+4. **設定画面**で好みに応じてカスタマイズできます
+
+---
+
+**MarkReview v0.1.5** - 軽量Markdownエディター  
+新しいファイルを作成するには「NEW」ボタンをクリックしてください。`
+
+// 新規ファイル作成時は空のコンテンツを使用
+export const NEW_FILE_CONTENT = ''
 
 export interface FileOperationHandlers {
   onSuccess: (message: string) => void
@@ -69,7 +130,7 @@ export const useFileOperations = ({
 
   // Handle new file creation
   const handleNew = useCallback(() => {
-    onContentChange(DEFAULT_CONTENT, APP_CONFIG.DEFAULT_FILENAME, null, false)
+    onContentChange(NEW_FILE_CONTENT, APP_CONFIG.DEFAULT_FILENAME, null, false)
   }, [onContentChange])
 
   // Handle file opening

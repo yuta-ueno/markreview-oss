@@ -34,6 +34,12 @@ function App() {
   const { settings, updateSettings, resetSettings } = useSettings()
   const { toasts, removeToast, showToast, success, error, info } = useToast()
 
+  // Setup scroll synchronization (needed before handleContentChange)
+  const { editorScrollRef, previewScrollRef, resetScrollPositions } = useScrollSync({
+    enabled: settings.preview.syncScroll,
+    throttleDelay: APP_CONFIG.THROTTLE_DELAY,
+  })
+
   // Content change handler for file operations
   const handleContentChange = useCallback((content: string, filename: string, filePath: string | null, hasChanges: boolean) => {
     console.log('Content change:', { filename, filePath, contentLength: content.length, hasChanges })
@@ -43,6 +49,11 @@ function App() {
     setCurrentFilePath(filePath)
     setHasUnsavedChanges(hasChanges)
     
+    // Reset scroll positions when new content is loaded (not for unsaved changes)
+    if (!hasChanges) {
+      resetScrollPositions()
+    }
+    
     // DOM-based feedback for file loading
     const statusDiv = document.getElementById('react-status')
     if (statusDiv) {
@@ -51,7 +62,7 @@ function App() {
         if (statusDiv.parentNode) statusDiv.parentNode.removeChild(statusDiv)
       }, 3000)
     }
-  }, [originalContent])
+  }, [originalContent, resetScrollPositions])
 
   // Tauri integration with file drop support
   const { isTauri, readTextFile } = useTauriIntegration({
@@ -64,12 +75,6 @@ function App() {
 
   // Debounce the markdown content for preview updates
   const debouncedContent = useDebounce(markdownContent, APP_CONFIG.DEBOUNCE_DELAY)
-
-  // Setup scroll synchronization
-  const { editorScrollRef, previewScrollRef } = useScrollSync({
-    enabled: settings.preview.syncScroll,
-    throttleDelay: APP_CONFIG.THROTTLE_DELAY,
-  })
 
   // File operations hook
   const {

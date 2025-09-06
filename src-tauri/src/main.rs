@@ -47,10 +47,10 @@ fn main() {
                     let file_path = supported_files[0].clone();
                     let app_handle = app.handle().clone();
                     
-                    // Delay emission to ensure frontend is ready
+                    // Emit file-args event with minimal delay to ensure frontend is initialized
                     std::thread::spawn(move || {
-                        std::thread::sleep(std::time::Duration::from_millis(2000));
-                        // Emitting file-args event with delay
+                        std::thread::sleep(std::time::Duration::from_millis(500));
+                        // Emitting file-args event with reduced delay
                         let _result = app_handle.emit("tauri://file-args", &file_path);
                     });
                 } else {

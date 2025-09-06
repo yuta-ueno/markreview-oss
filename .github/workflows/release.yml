@@ -1,0 +1,131 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create-release.outputs.id }}
+      upload_url: ${{ steps.create-release.outputs.upload_url }}
+    steps:
+    - name: Create Release
+      id: create-release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: MarkReview ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+  build-tauri:
+    runs-on: ${{ matrix.platform }}
+    needs: create-release
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest, macos-latest, ubuntu-20.04]
+        
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install Rust stable
+      uses: dtolnay/rust-toolchain@stable
+    
+    - name: Rust cache
+      uses: swatinem/rust-cache@v2
+      with:
+        workspaces: './src-tauri -> target'
+    
+    - name: Install dependencies (Ubuntu only)
+      if: matrix.platform == 'ubuntu-20.04'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+        npm ci
+    
+    - name: Install dependencies (macOS only)
+      if: matrix.platform == 'macos-latest'
+      run: npm ci
+    
+    - name: Install dependencies (Windows only)
+      if: matrix.platform == 'windows-latest'
+      run: npm ci
+    
+    - name: Install Tauri CLI
+      run: npm install -g @tauri-apps/cli
+    
+    - name: Build Tauri application
+      run: npm run tauri build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Upload Windows MSI
+      if: matrix.platform == 'windows-latest'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./src-tauri/target/release/bundle/msi/MarkReview_${{ github.ref_name }}_x64_en-US.msi
+        asset_name: MarkReview_${{ github.ref_name }}_x64_en-US.msi
+        asset_content_type: application/octet-stream
+    
+    - name: Upload Windows NSIS
+      if: matrix.platform == 'windows-latest'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./src-tauri/target/release/bundle/nsis/MarkReview_${{ github.ref_name }}_x64-setup.exe
+        asset_name: MarkReview_${{ github.ref_name }}_x64-setup.exe
+        asset_content_type: application/octet-stream
+    
+    - name: Upload macOS DMG
+      if: matrix.platform == 'macos-latest'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./src-tauri/target/release/bundle/dmg/MarkReview_${{ github.ref_name }}_x64.dmg
+        asset_name: MarkReview_${{ github.ref_name }}_x64.dmg
+        asset_content_type: application/octet-stream
+    
+    - name: Upload Linux DEB
+      if: matrix.platform == 'ubuntu-20.04'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./src-tauri/target/release/bundle/deb/markreview_${{ github.ref_name }}_amd64.deb
+        asset_name: markreview_${{ github.ref_name }}_amd64.deb
+        asset_content_type: application/octet-stream
+    
+    - name: Upload Linux AppImage
+      if: matrix.platform == 'ubuntu-20.04'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./src-tauri/target/release/bundle/appimage/markreview_${{ github.ref_name }}_amd64.AppImage
+        asset_name: markreview_${{ github.ref_name }}_amd64.AppImage
+        asset_content_type: application/octet-stream

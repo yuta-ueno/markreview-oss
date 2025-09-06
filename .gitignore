@@ -57,3 +57,6 @@ coverage/
 
 # Serena files (local development)
 .serena/
+
+# Local contributor guide (keep out of VCS)
+AGENTS.md

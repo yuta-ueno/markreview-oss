@@ -1,6 +1,6 @@
 {
   "name": "markreview",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -34,6 +34,9 @@
     "@tauri-apps/plugin-dialog": "^2.4.0",
     "@tauri-apps/plugin-fs": "^2.4.2",
     "@tauri-apps/plugin-shell": "^2.3.1",
+    "@uiw/codemirror-theme-github": "^4.25.1",
+    "@uiw/codemirror-theme-monokai": "^4.25.1",
+    "@uiw/codemirror-theme-nord": "^4.25.1",
     "@uiw/codemirror-theme-solarized": "^4.25.1",
     "codemirror": "^6.0.2",
     "dompurify": "^3.2.6",

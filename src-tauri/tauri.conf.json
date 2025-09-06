@@ -1,6 +1,6 @@
 {
   "productName": "MarkReview",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "identifier": "com.markreview.desktop",
   "build": {
     "beforeBuildCommand": "npm run build",
@@ -23,9 +23,9 @@
       }
     ],
     "macOSPrivateApi": true,
-    "withGlobalTauri": false,
+    "withGlobalTauri": true,
     "security": {
-      "csp": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';",
+      "csp": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: ipc: http://ipc.localhost; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost https://ipc.localhost;",
       "capabilities": ["main-capability"]
     }
   },
@@ -58,6 +58,8 @@
         "mimeType": "text/plain",
         "rank": "Alternate"
       }
-    ]
+    ],
+    "license": "../LICENSE",
+    "licenseFile": "../EULA.txt"
   }
 }

@@ -66,8 +66,12 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     onChange={(e) => handleThemeChange(e.target.value as ThemeMode)}
                   >
                     <option value="auto">Auto (System)</option>
+                    <option value="github-light">GitHub Light</option>
+                    <option value="github-dark">GitHub Dark</option>
                     <option value="solarized-light">Solarized Light</option>
                     <option value="solarized-dark">Solarized Dark</option>
+                    <option value="nord">Nord</option>
+                    <option value="monokai">Monokai</option>
                   </select>
                 </div>
               </div>
@@ -239,7 +243,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             Reset to Defaults
           </button>
           <button className="settings-button primary" onClick={onClose}>
-            Done
+            Save
           </button>
         </div>
       </div>

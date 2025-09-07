@@ -1,19 +1,20 @@
 # MarkReview
 
-A lightweight, cross-platform desktop application built with Tauri + React for handling AI-generated Markdown in a workflow of *view first (Viewer)* and *edit as needed (Editor)*.
+A lightweight, cross‑platform desktop application built with Tauri 2 + React for working with Markdown in a workflow of view first (Preview) and edit as needed (Editor).
 
 ## Features
 
-- **Split-pane Layout**: Left pane for preview (primary), right pane for editor (auxiliary)
-- **Real-time Preview**: Edits update preview within 150-250ms
-- **Markdown Support**: Full GitHub Flavored Markdown (GFM) with tables, checkboxes, and code blocks
-- **Syntax Highlighting**: Code blocks with syntax highlighting support
-- **File Operations**: New, Open, Save with native file dialogs
-- **Drag & Drop**: Drop `.md` files directly into the editor
-- **Customizable**: Theme toggle (light/dark) and customizable keyboard shortcuts
-- **Scroll Sync**: Preview follows editor cursor position
-- **Cross-platform**: Windows, macOS, Linux support
-- **Lightweight**: Built with Tauri for smaller binary size compared to Electron
+- Split‑pane layout: left Preview (primary), right Editor (auxiliary)
+- Near real‑time preview: typical 150–250ms update latency
+- Markdown: full GFM (tables, task lists, code blocks)
+- Syntax highlighting (rehype-highlight)
+- File operations: New / Open / Save via native dialogs (Tauri) or download (web)
+- Drag & Drop: drop `.md`, `.markdown`, `.txt`
+- Themes: github‑light/dark, solarized‑light/dark, nord, monokai, and auto (follows system)
+- Editor customization: font size/family, tab size, word wrap (CodeMirror 6)
+- Scroll sync: preview follows editor position
+- Large files optimized: chunked processing + optional virtualization for big inputs
+- Desktop‑class footprint: Tauri binaries are small compared to Electron
 
 ## Installation
 
@@ -29,9 +30,10 @@ Download the latest release from the [Releases page](../../releases).
 
 #### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or later)
-- [Rust](https://rustup.rs/) (latest stable)
-- [Tauri CLI](https://tauri.app/v1/guides/getting-started/prerequisites/)
+- Node.js 18+
+- Rust (stable) and platform toolchains for Tauri
+  - Windows: Visual Studio C++ Build Tools + WiX/NSIS for installer packaging
+  - macOS/Linux: standard build toolchain per Tauri docs
 
 #### Build Steps
 
@@ -46,20 +48,17 @@ cd markreview
 npm install
 ```
 
-3. Install Tauri CLI (if not already installed):
-```bash
-cargo install @tauri-apps/cli
-```
-
-4. Run in development mode:
+3. Run in development mode:
 ```bash
 npm run tauri:dev
 ```
 
-5. Build for production:
+4. Build for production:
 ```bash
 npm run tauri:build
 ```
+
+The desktop bundles are produced under `src-tauri/target/release/bundle/`.
 
 ## Development
 
@@ -92,12 +91,13 @@ npm run tauri:build
 
 ### Tech Stack
 
-- **Frontend**: React 19 + TypeScript + Vite
-- **Desktop**: Tauri 2.x (Rust)
-- **Editor**: CodeMirror 6
-- **Markdown**: react-markdown + remark-gfm
-- **Styling**: CSS with CSS variables for theming
-- **State**: React hooks + localStorage for settings
+- Frontend: React 19 + TypeScript + Vite
+- Desktop: Tauri 2.x (Rust)
+- Editor: CodeMirror 6
+- Markdown pipeline: unified + remark-parse/remark-gfm + remark-rehype + rehype-highlight + rehype-stringify
+- Security: DOMPurify sanitization of generated HTML
+- Styling: CSS with CSS variables (theme packs for preview + app UI)
+- Settings: File‑based (AppData) primary with localStorage fallback/migration
 
 ## Keyboard Shortcuts
 
@@ -111,7 +111,14 @@ Default shortcuts (customizable in Settings):
 
 ## Privacy
 
-**No Telemetry**: This application does not collect any user data or send any information to external servers. All data remains on your local machine.
+No Telemetry: this application does not collect or transmit data. All processing is local. You can verify with `npm run verify:no-telemetry`.
+
+### Settings Storage
+- Windows: `%APPDATA%/MarkReview/settings.json`
+- macOS: `~/Library/Application Support/MarkReview/settings.json`
+- Linux: `~/.local/share/MarkReview/settings.json`
+
+On first run, legacy localStorage settings are migrated to the file store (and kept as backup).
 
 ## Contributing
 
@@ -123,7 +130,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Built with [Tauri](https://tauri.app/) for cross-platform desktop apps
-- Markdown processing powered by [react-markdown](https://github.com/remarkjs/react-markdown)
-- Code editing with [CodeMirror 6](https://codemirror.net/6/)
-- Syntax highlighting by [highlight.js](https://highlightjs.org/)
+- Built with Tauri for cross‑platform desktop apps
+- Markdown processing powered by unified/remark/rehype
+- Code editing with CodeMirror 6
+- Syntax highlighting by rehype‑highlight
+
+---
+
+### For Contributors
+- To resume a session quickly, run: `npm run status` (and `npm run status:health` for typecheck/tests). See AGENTS.md for details.

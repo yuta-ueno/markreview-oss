@@ -1,7 +1,5 @@
 # Repository Guidelines
 
-# Repository Guidelines
-
 ## Session Resume (High Priority)
 - Always start by running `npm run status` to summarize branch, recent commits, working tree changes, untracked files, area breakdown (components/hooks/styles/tauri/config/tests), and diff since last tag.
 - For a quick health check, run `npm run status:health` to execute TypeScript typecheck and `vitest run`.

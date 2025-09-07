@@ -1,6 +1,6 @@
 {
   "productName": "MarkReview",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "identifier": "com.markreview.desktop",
   "build": {
     "beforeBuildCommand": "npm run build",

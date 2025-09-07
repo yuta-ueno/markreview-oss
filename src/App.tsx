@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef, type RefCallback } from 'react'
 import SplitPane from './components/SplitPane'
 import Preview from './components/Preview'
 import Editor from './components/Editor'
@@ -37,11 +37,59 @@ function App() {
   useWindowManager()
   const { toasts, removeToast, showToast, success, error, info } = useToast()
 
-  // Setup scroll synchronization (needed before handleContentChange)
-  const { editorScrollRef, previewScrollRef, resetScrollPositions } = useScrollSync({
+  // Setup scroll synchronization (ref-based API)
+  const editorContainerRef = useRef<HTMLDivElement | null>(null)
+  const previewContainerRef = useRef<HTMLDivElement | null>(null)
+  const [editorEl, setEditorEl] = useState<HTMLElement | null>(null)
+  const [previewEl, setPreviewEl] = useState<HTMLElement | null>(null)
+
+  const attachEditorRef: RefCallback<HTMLDivElement> = useCallback((node) => {
+    editorContainerRef.current = node
+    const scroller = node?.querySelector('.cm-scroller') as HTMLElement | null
+    setEditorEl(scroller)
+  }, [])
+
+  const attachPreviewRef: RefCallback<HTMLDivElement> = useCallback((node) => {
+    previewContainerRef.current = node
+    const scroller = node?.querySelector('.preview-content') as HTMLElement | null
+    setPreviewEl(scroller)
+  }, [])
+
+  const { editorScrollRef: hookEditorRef, previewScrollRef: hookPreviewRef, resetScrollPositions } = useScrollSync({
     enabled: settings.preview.syncScroll,
     throttleDelay: APP_CONFIG.THROTTLE_DELAY,
+    editorEl,
+    previewEl,
   })
+
+  // Compose our local ref with the hook's internal ref for fallback querying
+  const editorRefCombined: RefCallback<HTMLDivElement> = useCallback((node) => {
+    hookEditorRef(node)
+    attachEditorRef(node)
+  }, [hookEditorRef, attachEditorRef])
+
+  const previewRefCombined: RefCallback<HTMLDivElement> = useCallback((node) => {
+    hookPreviewRef(node)
+    attachPreviewRef(node)
+  }, [hookPreviewRef, attachPreviewRef])
+
+  // Retry finding CodeMirror scroller after mount since it is created asynchronously
+  useEffect(() => {
+    const node = editorContainerRef.current
+    if (!node || editorEl) return
+    let retries = 0
+    const maxRetries = 30 // ~3s at 100ms
+    const interval = window.setInterval(() => {
+      const scroller = node.querySelector('.cm-scroller') as HTMLElement | null
+      if (scroller) {
+        setEditorEl(scroller)
+        window.clearInterval(interval)
+      } else if (++retries >= maxRetries) {
+        window.clearInterval(interval)
+      }
+    }, 100)
+    return () => window.clearInterval(interval)
+  }, [editorEl])
 
   // Content change handler for file operations
   const handleContentChange = useCallback((content: string, filename: string, filePath: string | null, hasChanges: boolean) => {
@@ -55,15 +103,7 @@ function App() {
     // Reset scroll positions when new content is loaded (not for unsaved changes)
     if (!hasChanges) {
       resetScrollPositions()
-    }
-    
-    // DOM-based feedback for file loading
-    const statusDiv = document.getElementById('react-status')
-    if (statusDiv) {
-      statusDiv.innerHTML = `<div style="position:fixed;top:0;left:0;z-index:9999;background:blue;color:white;padding:5px;font-size:12px;">✓ FILE: ${filename}</div>`
-      setTimeout(() => {
-        if (statusDiv.parentNode) statusDiv.parentNode.removeChild(statusDiv)
-      }, 3000)
+      success(`Loaded: ${filename}`)
     }
   }, [originalContent, resetScrollPositions])
 
@@ -197,7 +237,7 @@ function App() {
                   <Preview
                     content={debouncedContent}
                     settings={settings}
-                    ref={previewScrollRef}
+                    ref={previewRefCombined}
                   />
                 </ErrorBoundary>
               }
@@ -211,7 +251,7 @@ function App() {
                     onChange={handleEditorContentChange}
                     placeholder={APP_CONFIG.PLACEHOLDERS.EDITOR}
                     settings={settings}
-                    ref={editorScrollRef}
+                    ref={editorRefCombined}
                   />
                 </ErrorBoundary>
               }
@@ -241,3 +281,6 @@ function App() {
 }
 
 export default App
+
+
+

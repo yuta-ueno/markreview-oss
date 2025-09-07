@@ -4,20 +4,34 @@ import { logger } from '../utils/logger'
 export interface ScrollSyncOptions {
   enabled?: boolean
   throttleDelay?: number
+  editorSelector?: string
+  previewSelector?: string
+  // New: allow passing scroller elements directly
+  editorEl?: HTMLElement | null
+  previewEl?: HTMLElement | null
 }
 
 export const useScrollSync = (options: ScrollSyncOptions = {}) => {
-  const { enabled = true, throttleDelay = 100 } = options
+  const {
+    enabled = true,
+    throttleDelay = 100,
+    editorSelector = '.cm-scroller',
+    previewSelector = '.preview-content',
+  } = options
   
   const editorRef = useRef<HTMLDivElement | null>(null)
   const previewRef = useRef<HTMLDivElement | null>(null)
   const isScrollingSyncRef = useRef(false)
   const throttleTimerRef = useRef<number | null>(null)
+  const attachedEditorElRef = useRef<HTMLElement | null>(null)
+  const attachedPreviewElRef = useRef<HTMLElement | null>(null)
+  const editorObserverRef = useRef<MutationObserver | null>(null)
+  const previewObserverRef = useRef<MutationObserver | null>(null)
 
   // Get scroll elements (CodeMirror scroller and preview content)
   const getScrollElements = useCallback(() => {
-    const editorScroller = editorRef.current?.querySelector('.cm-scroller') as HTMLElement
-    const previewScroller = previewRef.current?.querySelector('.preview-content') as HTMLElement
+    const editorScroller = (options.editorEl ?? (editorRef.current?.querySelector(editorSelector) as HTMLElement | null)) || undefined
+    const previewScroller = (options.previewEl ?? (previewRef.current?.querySelector(previewSelector) as HTMLElement | null)) || undefined
     
     // Debug logging
     logger.debug('ScrollSync: Getting elements', {
@@ -30,7 +44,7 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
     })
     
     return { editorScroller, previewScroller }
-  }, [])
+  }, [editorSelector, previewSelector, options.editorEl, options.previewEl])
 
   // Calculate scroll percentage
   const getScrollPercentage = useCallback((element: HTMLElement): number => {
@@ -67,8 +81,6 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
             sourceElement: sourceElement.className,
             targetElement: targetElement.className,
             scrollPercentage: scrollPercentage.toFixed(3),
-            sourceScrollTop: sourceElement.scrollTop,
-            sourceScrollHeight: sourceElement.scrollHeight
           })
           
           setScrollPercentage(targetElement, scrollPercentage)
@@ -77,11 +89,6 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
           window.setTimeout(() => {
             isScrollingSyncRef.current = false
           }, 50)
-        } else {
-          logger.debug('ScrollSync: Sync skipped', {
-            isScrollingSyncRef: isScrollingSyncRef.current,
-            enabled
-          })
         }
       }, throttleDelay)
     },
@@ -104,69 +111,65 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
     }
   }, [getScrollElements, throttledSync])
 
-  // Setup scroll listeners with retry mechanism
-  useEffect(() => {
+  // Attach listeners to current elements, replacing previous bindings if needed
+  const attachListenersIfReady = useCallback(() => {
     if (!enabled) return
+    const { editorScroller, previewScroller } = getScrollElements()
+    if (!(editorScroller && previewScroller)) return
 
-    let retryCount = 0
-    const maxRetries = 10
-    let cleanupFunctions: (() => void)[] = []
-
-    const setupListeners = () => {
-      const { editorScroller, previewScroller } = getScrollElements()
-      
-      logger.debug('ScrollSync: Setting up listeners', {
-        retryCount,
-        editorScroller: !!editorScroller,
-        previewScroller: !!previewScroller
-      })
-      
-      if (editorScroller && previewScroller) {
-        // Both elements found, setup listeners
-        editorScroller.addEventListener('scroll', handleEditorScroll, { passive: true })
-        previewScroller.addEventListener('scroll', handlePreviewScroll, { passive: true })
-        
-        logger.debug('ScrollSync: Listeners attached successfully')
-        
-        // Return cleanup function
-        return () => {
-          editorScroller.removeEventListener('scroll', handleEditorScroll)
-          previewScroller.removeEventListener('scroll', handlePreviewScroll)
-        }
-      } else if (retryCount < maxRetries) {
-        // Elements not ready, retry after a delay
-        logger.debug('ScrollSync: Elements not ready, retrying...', {
-          retryCount,
-          willRetryAfter: '100ms'
-        })
-        
-        const timeoutId = setTimeout(() => {
-          retryCount++
-          const cleanupFn = setupListeners()
-          if (cleanupFn) {
-            cleanupFunctions.push(cleanupFn)
-          }
-        }, 100)
-        
-        return () => clearTimeout(timeoutId)
-      } else {
-        logger.warn('ScrollSync: Max retries reached, could not find scroll elements')
-        return () => {}
+    // Rebind if targets changed
+    if (attachedEditorElRef.current !== editorScroller || attachedPreviewElRef.current !== previewScroller) {
+      if (attachedEditorElRef.current) {
+        attachedEditorElRef.current.removeEventListener('scroll', handleEditorScroll)
       }
+      if (attachedPreviewElRef.current) {
+        attachedPreviewElRef.current.removeEventListener('scroll', handlePreviewScroll)
+      }
+      editorScroller.addEventListener('scroll', handleEditorScroll, { passive: true })
+      previewScroller.addEventListener('scroll', handlePreviewScroll, { passive: true })
+      attachedEditorElRef.current = editorScroller
+      attachedPreviewElRef.current = previewScroller
+      logger.debug('ScrollSync: listeners attached/refreshed')
     }
+  }, [enabled, getScrollElements, handleEditorScroll, handlePreviewScroll])
 
-    const initialCleanup = setupListeners()
-    if (initialCleanup) {
-      cleanupFunctions.push(initialCleanup)
+  // Setup scroll listeners and observe DOM changes (robust for delayed mount e.g., Tauri WebView)
+  useEffect(() => {
+    attachListenersIfReady()
+
+    // Observe for dynamic creation (e.g., CodeMirror scroller)
+    const edNode = editorRef.current
+    const pvNode = previewRef.current
+    if (typeof MutationObserver !== 'undefined') {
+      if (edNode) {
+        editorObserverRef.current?.disconnect()
+        editorObserverRef.current = new MutationObserver(() => attachListenersIfReady())
+        editorObserverRef.current.observe(edNode, { childList: true, subtree: true })
+      }
+      if (pvNode) {
+        previewObserverRef.current?.disconnect()
+        previewObserverRef.current = new MutationObserver(() => attachListenersIfReady())
+        previewObserverRef.current.observe(pvNode, { childList: true, subtree: true })
+      }
     }
 
     return () => {
-      cleanupFunctions.forEach(cleanup => cleanup())
-      if (throttleTimerRef.current) {
-        window.clearTimeout(throttleTimerRef.current)
+      // Cleanup listeners
+      if (attachedEditorElRef.current) {
+        attachedEditorElRef.current.removeEventListener('scroll', handleEditorScroll)
       }
+      if (attachedPreviewElRef.current) {
+        attachedPreviewElRef.current.removeEventListener('scroll', handlePreviewScroll)
+      }
+      attachedEditorElRef.current = null
+      attachedPreviewElRef.current = null
+
+      // Cleanup observers and timers
+      editorObserverRef.current?.disconnect()
+      previewObserverRef.current?.disconnect()
+      if (throttleTimerRef.current) window.clearTimeout(throttleTimerRef.current)
     }
-  }, [enabled, handleEditorScroll, handlePreviewScroll, getScrollElements])
+  }, [attachListenersIfReady])
 
   // Refs to be attached to editor and preview containers
   const editorScrollRef: RefCallback<HTMLDivElement> = useCallback((node) => {
@@ -191,10 +194,7 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
       previewScroller.scrollTop = 0
     }
     
-    logger.debug('ScrollSync: Reset scroll positions to top', {
-      editorScroller: !!editorScroller,
-      previewScroller: !!previewScroller
-    })
+    logger.debug('ScrollSync: Reset scroll positions to top')
   }, [getScrollElements])
 
   return {

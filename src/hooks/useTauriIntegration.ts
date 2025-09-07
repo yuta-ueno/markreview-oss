@@ -55,7 +55,7 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
       // Tauri 2.0 FS Plugin loaded successfully
       tauriLogger.apiImportSuccess()
     } catch (err) {
-      console.error('Failed to import Tauri fs plugin:', err)
+      logger.error('Failed to import Tauri fs plugin:', err)
       showDebugInfo(`❌ Failed to load Tauri FS Plugin: ${err}`, 'error')
     }
   }, [showDebugInfo])
@@ -105,7 +105,7 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
         unlistenLeave()
       }
     } catch (err) {
-      console.error('Failed to setup Tauri file drop listener:', err)
+      logger.error('Failed to setup Tauri file drop listener:', err)
       showDebugInfo(`❌ Failed to setup D&D: ${err}`, 'error')
       return null
     }
@@ -114,7 +114,7 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
   // Setup Tauri file args event listener using Tauri 2.0 events
   const setupTauriFileArgsListener = useCallback(async () => {
     try {
-      console.log('Setting up Tauri 2.0 file args listener...')
+      logger.debug('Setting up Tauri 2.0 file args listener...')
       showDebugInfo('📦 Setting up Tauri 2.0 file association...', 'info')
       
       // Use Tauri 2.0 core events
@@ -122,19 +122,19 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
       
       showDebugInfo('✅ Event module imported successfully', 'success')
       
-      console.log('Available APP_CONFIG.TAURI_FILE_ARGS_EVENT:', APP_CONFIG.TAURI_FILE_ARGS_EVENT)
+      logger.debug('Available APP_CONFIG.TAURI_FILE_ARGS_EVENT:', APP_CONFIG.TAURI_FILE_ARGS_EVENT)
       
       const unlisten = await listen(APP_CONFIG.TAURI_FILE_ARGS_EVENT, (event: { payload?: unknown }) => {
         console.log('✅✅✅ TAURI 2.0 FILE ARGS EVENT RECEIVED ✅✅✅:', event)
-        console.log('Event payload type:', typeof event.payload)
-        console.log('Event payload value:', event.payload)
+        logger.debug('Event payload type:', typeof event.payload)
+        logger.debug('Event payload value:', event.payload)
         
         // Show DOM-based feedback - more prominent
         showDebugInfo(`🎉 FILE ASSOCIATION WORKED! Tauri 2.0 event received: ${JSON.stringify(event.payload)}`, 'success')
         
         if (event.payload && typeof event.payload === 'string') {
-          console.log('Processing command line file:', event.payload)
-          console.log('Calling onFileDropped with:', event.payload)
+          logger.debug('Processing command line file:', event.payload)
+          logger.debug('Calling onFileDropped with:', event.payload)
           showDebugInfo(`Loading file: ${event.payload.split(/[\\/]/).pop()}`, 'info')
           
           // Call the file handler
@@ -145,19 +145,19 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
             showDebugInfo(`File processing initiated for: ${(event.payload as string).split(/[\\/]/).pop()}`, 'success')
           }, 1000)
         } else {
-          console.log('Invalid payload format or empty payload')
+          logger.debug('Invalid payload format or empty payload')
           showDebugInfo(`⚠️ Invalid payload: ${typeof event.payload} - ${event.payload}`, 'error')
         }
       })
       
-      console.log('Tauri 2.0 file args listener setup complete')
+      logger.debug('Tauri 2.0 file args listener setup complete')
       showDebugInfo('🎯 TAURI 2.0 FILE ASSOCIATION LISTENER IS NOW ACTIVE!', 'success')
       
       // Return cleanup function
       return unlisten
     } catch (err) {
-      console.error('Failed to setup Tauri 2.0 file args listener:', err)
-      console.error('Error stack:', err)
+      logger.error('Failed to setup Tauri 2.0 file args listener:', err)
+      logger.error('Error stack:', err)
       showDebugInfo(`❌ CRITICAL: Failed to setup Tauri 2.0 file association: ${err}`, 'error')
       return null
     }

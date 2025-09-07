@@ -99,16 +99,14 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAURI_BUNDLE_TARGETS: deb,appimage
     
-    - name: Upload Windows MSI
+    - name: Resolve Windows NSIS artifact
       if: matrix.platform == 'windows-latest'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./src-tauri/target/release/bundle/msi/MarkReview_${{ github.ref_name }}_x64_en-US.msi
-        asset_name: MarkReview_${{ github.ref_name }}_x64_en-US.msi
-        asset_content_type: application/octet-stream
+      shell: pwsh
+      run: |
+        $file = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter *.exe -Recurse | Select-Object -ExpandProperty FullName -First 1
+        if (-not $file) { Write-Error "NSIS installer not found"; exit 1 }
+        ("NSIS_PATH=$file") | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        ("NSIS_NAME=" + (Split-Path $file -Leaf)) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
     
     - name: Upload Windows NSIS
       if: matrix.platform == 'windows-latest'
@@ -117,10 +115,19 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./src-tauri/target/release/bundle/nsis/MarkReview_${{ github.ref_name }}_x64-setup.exe
-        asset_name: MarkReview_${{ github.ref_name }}_x64-setup.exe
+        asset_path: ${{ env.NSIS_PATH }}
+        asset_name: ${{ env.NSIS_NAME }}
         asset_content_type: application/octet-stream
     
+    - name: Resolve macOS DMG artifact
+      if: matrix.platform == 'macos-latest'
+      shell: bash
+      run: |
+        file=$(ls -1 src-tauri/target/release/bundle/dmg/*.dmg | head -n 1)
+        if [[ -z "$file" ]]; then echo "DMG not found"; exit 1; fi
+        echo "DMG_PATH=$file" >> $GITHUB_ENV
+        echo "DMG_NAME=$(basename "$file")" >> $GITHUB_ENV
+
     - name: Upload macOS DMG
       if: matrix.platform == 'macos-latest'
       uses: actions/upload-release-asset@v1
@@ -128,10 +135,19 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./src-tauri/target/release/bundle/dmg/MarkReview_${{ github.ref_name }}_x64.dmg
-        asset_name: MarkReview_${{ github.ref_name }}_x64.dmg
+        asset_path: ${{ env.DMG_PATH }}
+        asset_name: ${{ env.DMG_NAME }}
         asset_content_type: application/octet-stream
     
+    - name: Resolve Linux DEB artifact
+      if: matrix.platform == 'ubuntu-20.04'
+      shell: bash
+      run: |
+        file=$(ls -1 src-tauri/target/release/bundle/deb/*.deb | head -n 1)
+        if [[ -z "$file" ]]; then echo "DEB not found"; exit 1; fi
+        echo "DEB_PATH=$file" >> $GITHUB_ENV
+        echo "DEB_NAME=$(basename "$file")" >> $GITHUB_ENV
+
     - name: Upload Linux DEB
       if: matrix.platform == 'ubuntu-20.04'
       uses: actions/upload-release-asset@v1
@@ -139,10 +155,19 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./src-tauri/target/release/bundle/deb/markreview_${{ github.ref_name }}_amd64.deb
-        asset_name: markreview_${{ github.ref_name }}_amd64.deb
+        asset_path: ${{ env.DEB_PATH }}
+        asset_name: ${{ env.DEB_NAME }}
         asset_content_type: application/octet-stream
     
+    - name: Resolve Linux AppImage artifact
+      if: matrix.platform == 'ubuntu-20.04'
+      shell: bash
+      run: |
+        file=$(ls -1 src-tauri/target/release/bundle/appimage/*.AppImage | head -n 1)
+        if [[ -z "$file" ]]; then echo "AppImage not found"; exit 1; fi
+        echo "APPIMAGE_PATH=$file" >> $GITHUB_ENV
+        echo "APPIMAGE_NAME=$(basename "$file")" >> $GITHUB_ENV
+
     - name: Upload Linux AppImage
       if: matrix.platform == 'ubuntu-20.04'
       uses: actions/upload-release-asset@v1
@@ -150,6 +175,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ./src-tauri/target/release/bundle/appimage/markreview_${{ github.ref_name }}_amd64.AppImage
-        asset_name: markreview_${{ github.ref_name }}_amd64.AppImage
+        asset_path: ${{ env.APPIMAGE_PATH }}
+        asset_name: ${{ env.APPIMAGE_NAME }}
         asset_content_type: application/octet-stream

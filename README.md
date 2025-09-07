@@ -1,5 +1,8 @@
 # MarkReview
 
+[![Latest Release](https://img.shields.io/github/v/release/yuta-ueno/markreview?display_name=release&sort=semver)](https://github.com/yuta-ueno/markreview/releases/latest)
+[![CI](https://github.com/yuta-ueno/markreview/actions/workflows/ci.yml/badge.svg)](https://github.com/yuta-ueno/markreview/actions/workflows/ci.yml)
+
 A lightweight, cross‑platform desktop application built with Tauri 2 + React for working with Markdown in a workflow of view first (Preview) and edit as needed (Editor).
 
 ## Features
@@ -18,13 +21,16 @@ A lightweight, cross‑platform desktop application built with Tauri 2 + React f
 
 ## Installation
 
-### Download Pre-built Binaries
+### Download
 
-Download the latest release from the [Releases page](../../releases).
+- Latest release: https://github.com/yuta-ueno/markreview/releases/latest
 
-- **Windows**: Download `.exe` or `.msi` installer
-- **macOS**: Download `.dmg` file (Coming soon)
-- **Linux**: Download `.AppImage` or `.deb` package (Coming soon)
+Platform assets for v0.1.10:
+- Windows (x64): https://github.com/yuta-ueno/markreview/releases/download/v0.1.10/MarkReview_0.1.10_x64-setup.exe
+- macOS (Apple Silicon): https://github.com/yuta-ueno/markreview/releases/download/v0.1.10/MarkReview_0.1.10_aarch64.dmg
+
+Notes:
+- Linux artifacts are currently not published to reduce CI queue time. They will return in a future release.
 
 ### Build from Source
 
@@ -32,7 +38,7 @@ Download the latest release from the [Releases page](../../releases).
 
 - Node.js 18+
 - Rust (stable) and platform toolchains for Tauri
-  - Windows: Visual Studio C++ Build Tools + WiX/NSIS for installer packaging
+  - Windows: Visual Studio C++ Build Tools + NSIS for installer packaging
   - macOS/Linux: standard build toolchain per Tauri docs
 
 #### Build Steps

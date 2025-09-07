@@ -1,11 +1,11 @@
-import React, { forwardRef, memo, useMemo, useRef, useState, useCallback } from 'react'
+import React, { forwardRef, memo, useMemo, useRef, useState, useCallback, useEffect } from 'react'
 import DOMPurify from 'dompurify'
 import { useOptimizedMarkdown } from '../hooks/useMarkdown'
 import './Preview.css'
 
 interface VirtualizedPreviewProps {
   content?: string
-  itemHeight?: number
+  itemHeight?: number // default estimate used until measured
   containerHeight?: number
   overscan?: number
 }
@@ -25,6 +25,8 @@ const VirtualizedPreview = memo(forwardRef<HTMLDivElement, VirtualizedPreviewPro
 }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [scrollTop, setScrollTop] = useState(0)
+  const heightsRef = useRef<Map<number, number>>(new Map())
+  const [avgHeight, setAvgHeight] = useState(itemHeight)
   
   // Split content into chunks for virtualization
   const contentChunks = useMemo(() => {
@@ -41,28 +43,54 @@ const VirtualizedPreview = memo(forwardRef<HTMLDivElement, VirtualizedPreviewPro
     return chunks
   }, [content])
   
-  // Calculate visible items based on scroll position
+  // Helpers for dynamic heights
+  const getHeight = useCallback((idx: number) => heightsRef.current.get(idx) ?? avgHeight, [avgHeight])
+
+  const getEstimatedTop = useCallback((idx: number) => {
+    let sum = 0
+    for (let i = 0; i < idx; i++) sum += getHeight(i)
+    return sum
+  }, [getHeight])
+
+  const getEstimatedTotal = useCallback(() => {
+    let sum = 0
+    for (let i = 0; i < contentChunks.length; i++) sum += getHeight(i)
+    return sum
+  }, [contentChunks.length, getHeight])
+
+  // Calculate visible items based on scroll using cumulative heights
   const visibleItems = useMemo(() => {
     if (contentChunks.length === 0) return []
-    
-    const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan)
-    const endIndex = Math.min(
-      contentChunks.length - 1,
-      Math.floor((scrollTop + containerHeight) / itemHeight) + overscan
-    )
-    
-    const items: VirtualItem[] = []
-    for (let i = startIndex; i <= endIndex; i++) {
-      items.push({
-        index: i,
-        start: i * itemHeight,
-        end: (i + 1) * itemHeight,
-        content: contentChunks[i]
-      })
+
+    // find start index
+    let start = 0
+    let acc = 0
+    while (start < contentChunks.length && acc + getHeight(start) < scrollTop) {
+      acc += getHeight(start)
+      start++
     }
-    
+
+    // find end index
+    let end = start
+    let pos = acc
+    const limit = scrollTop + containerHeight
+    while (end < contentChunks.length && pos < limit) {
+      pos += getHeight(end)
+      end++
+    }
+
+    start = Math.max(0, start - overscan)
+    end = Math.min(contentChunks.length, end + overscan)
+
+    const items: VirtualItem[] = []
+    let top = getEstimatedTop(start)
+    for (let i = start; i < end; i++) {
+      const h = getHeight(i)
+      items.push({ index: i, start: top, end: top + h, content: contentChunks[i] })
+      top += h
+    }
     return items
-  }, [contentChunks, scrollTop, itemHeight, containerHeight, overscan])
+  }, [contentChunks, scrollTop, containerHeight, overscan, getHeight, getEstimatedTop])
   
   // Process only visible content chunks
   const processedChunks = useMemo(() => {
@@ -129,7 +157,7 @@ const VirtualizedPreview = memo(forwardRef<HTMLDivElement, VirtualizedPreviewPro
         onScroll={handleScroll}
         ref={containerRef}
       >
-        <div style={{ height: contentChunks.length * itemHeight, position: 'relative' }}>
+        <div style={{ height: getEstimatedTotal(), position: 'relative' }}>
           {visibleItems.map(item => {
             const processedContent = processedChunks.get(item.index) || ''
             return (
@@ -144,14 +172,14 @@ const VirtualizedPreview = memo(forwardRef<HTMLDivElement, VirtualizedPreviewPro
                 }}
                 className="virtual-item"
               >
-                {processedContent ? (
-                  <div
-                    className="markdown-body"
-                    dangerouslySetInnerHTML={{ __html: processedContent }}
-                  />
-                ) : (
-                  <div className="chunk-loading">Loading chunk {item.index + 1}...</div>
-                )}
+                <MeasuredChunk index={item.index} html={processedContent} onMeasure={(idx, h) => {
+                  const prev = heightsRef.current.get(idx)
+                  if (prev !== h) {
+                    heightsRef.current.set(idx, h)
+                    const vals = Array.from(heightsRef.current.values())
+                    if (vals.length) setAvgHeight(vals.reduce((a, b) => a + b, 0) / vals.length)
+                  }
+                }} />
               </div>
             )
           })}
@@ -164,3 +192,28 @@ const VirtualizedPreview = memo(forwardRef<HTMLDivElement, VirtualizedPreviewPro
 VirtualizedPreview.displayName = 'VirtualizedPreview'
 
 export default VirtualizedPreview
+
+// Helper chunk component that reports its rendered height
+const MeasuredChunk: React.FC<{ index: number; html: string; onMeasure: (index: number, h: number) => void }>
+  = ({ index, html, onMeasure }) => {
+  const elRef = useRef<HTMLDivElement | null>(null)
+
+  const measure = useCallback(() => {
+    if (elRef.current) onMeasure(index, elRef.current.offsetHeight)
+  }, [index, onMeasure])
+
+  useEffect(() => { measure() }, [measure, html])
+
+  useEffect(() => {
+    if (!elRef.current || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(() => measure())
+    ro.observe(elRef.current)
+    return () => ro.disconnect()
+  }, [measure])
+
+  return html ? (
+    <div className="markdown-body" ref={elRef} dangerouslySetInnerHTML={{ __html: html }} />
+  ) : (
+    <div ref={elRef} className="chunk-loading">Loading chunk {index + 1}...</div>
+  )
+}

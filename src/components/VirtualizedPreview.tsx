@@ -1,5 +1,5 @@
 import React, { forwardRef, memo, useMemo, useRef, useState, useCallback, useEffect } from 'react'
-import DOMPurify from 'dompurify'
+import sanitizeHtml from '../utils/sanitizeHtml'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
@@ -125,7 +125,7 @@ const VirtualizedPreview = memo(forwardRef<HTMLDivElement, VirtualizedPreviewPro
       try {
         const proc = processorRef.current as any
         const result = proc.processSync(item.content)
-        const html = DOMPurify.sanitize(String(result))
+        const html = sanitizeHtml(String(result))
         htmlCacheRef.current.set(item.index, html)
         processed.set(item.index, html)
       } catch {

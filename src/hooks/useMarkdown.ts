@@ -5,7 +5,7 @@ import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeStringify from 'rehype-stringify'
-import DOMPurify from 'dompurify'
+import sanitizeHtml from '../utils/sanitizeHtml'
 import { logger } from '../utils/logger'
 import { APP_CONFIG } from '../utils/constants'
 
@@ -55,7 +55,7 @@ const processLargeContent = (content: string, options: MarkdownProcessingOptions
       const result = processor.processSync(chunk)
       return String(result)
     } catch (error) {
-      console.error('Chunk processing error:', error)
+      logger.error('Chunk processing error:', error)
       return '<p>Error processing markdown chunk</p>'
     }
   })
@@ -75,26 +75,7 @@ export const useMarkdown = (
     chunkSize = 50000
   } = options
 
-  // Memoize DOMPurify config to avoid recreation
-  const purifyConfig = useMemo(() => ({
-    ALLOWED_TAGS: [
-      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-      'p', 'br', 'strong', 'em', 'u', 'del', 's',
-      'blockquote', 'code', 'pre',
-      'ul', 'ol', 'li',
-      'table', 'thead', 'tbody', 'tr', 'td', 'th',
-      'a', 'img',
-      'div', 'span',
-      'input', // For checkboxes
-    ],
-    ALLOWED_ATTR: [
-      'href', 'title', 'alt', 'src',
-      'class', 'id',
-      'type', 'checked', 'disabled', // For checkboxes
-      'data-*',
-    ],
-    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
-  }), [])
+  // No local DOMPurify config; use centralized sanitizer
 
   const processedContent = useMemo(() => {
     if (!content || content.trim() === '') {
@@ -123,7 +104,7 @@ export const useMarkdown = (
 
       // Sanitize HTML to prevent XSS attacks
       if (sanitize) {
-        htmlString = DOMPurify.sanitize(htmlString, purifyConfig)
+        htmlString = sanitizeHtml(htmlString)
       }
 
       return htmlString
@@ -131,7 +112,7 @@ export const useMarkdown = (
       logger.error('Markdown processing error:', error)
       return '<p>Error processing markdown content</p>'
     }
-  }, [content, enableGfm, enableHighlight, sanitize, enableVirtualization, chunkSize, purifyConfig])
+  }, [content, enableGfm, enableHighlight, sanitize, enableVirtualization, chunkSize])
 
   return processedContent
 }

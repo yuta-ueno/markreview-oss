@@ -1,6 +1,7 @@
 # MarkReview
 
 [![Latest Release](https://img.shields.io/github/v/release/yuta-ueno/markreview?display_name=release&sort=semver)](https://github.com/yuta-ueno/markreview/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/yuta-ueno/markreview/total?logo=github)](https://github.com/yuta-ueno/markreview/releases)
 [![CI](https://github.com/yuta-ueno/markreview/actions/workflows/ci.yml/badge.svg)](https://github.com/yuta-ueno/markreview/actions/workflows/ci.yml)
 
 A lightweight, cross‑platform desktop application built with Tauri 2 + React for working with Markdown in a workflow of view first (Preview) and edit as needed (Editor).
@@ -25,9 +26,9 @@ A lightweight, cross‑platform desktop application built with Tauri 2 + React f
 
 - Latest release: https://github.com/yuta-ueno/markreview/releases/latest
 
-Platform assets for v0.1.11:
-- Windows (x64): https://github.com/yuta-ueno/markreview/releases/download/v0.1.11/MarkReview_0.1.11_x64-setup.exe
-- macOS (Apple Silicon): https://github.com/yuta-ueno/markreview/releases/download/v0.1.11/MarkReview_0.1.11_aarch64.dmg
+Platform assets for v0.2.0:
+- Windows (MSI): https://github.com/yuta-ueno/markreview/releases/download/v0.2.0/MarkReview_0.2.0_x64_en-US.msi
+- Windows (NSIS): https://github.com/yuta-ueno/markreview/releases/download/v0.2.0/MarkReview_0.2.0_x64-setup.exe
 
 Notes:
 - Linux artifacts are currently not published to reduce CI queue time. They will return in a future release.
@@ -114,6 +115,7 @@ Default shortcuts (customizable in Settings):
 - `Ctrl+S` - Save file
 - `Ctrl+F` - Find in editor
 - `Ctrl+,` - Open settings
+- `Ctrl+Shift+P` - Toggle Preview Only
 
 ## Privacy
 

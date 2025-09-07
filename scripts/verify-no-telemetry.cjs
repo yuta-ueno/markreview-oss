@@ -146,21 +146,50 @@ function checkPackageJson() {
 
 function checkTauriConfig() {
   const configPath = path.join(process.cwd(), 'src-tauri', 'tauri.conf.json')
-  if (fs.existsSync(configPath)) {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
-    
-    // Check for allowlist restrictions
-    if (config.tauri?.allowlist?.http !== false) {
-      log.warn('HTTP requests are not explicitly disabled in Tauri config')
+  if (!fs.existsSync(configPath)) return
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+
+  // Tauri v1 style allowlist
+  if (config.tauri && config.tauri.allowlist) {
+    if (config.tauri.allowlist.http === false) {
+      log.info('HTTP requests disabled via allowlist')
+    } else {
+      log.warn('HTTP requests are not explicitly disabled in Tauri allowlist')
     }
-    
-    // Check for shell allowlist
-    if (config.tauri?.allowlist?.shell?.scope) {
+    if (config.tauri.allowlist.shell && Array.isArray(config.tauri.allowlist.shell.scope)) {
       log.info('Shell commands are restricted by allowlist')
     }
-    
-    log.info('Tauri configuration checked')
+  } else {
+    // Tauri v2 style: rely on CSP and capabilities
+    const csp = config.app?.security?.csp || ''
+    const safeConnect = /connect-src[^;]*'self'\s+ipc:/.test(csp)
+    if (safeConnect) {
+      log.info('CSP connect-src restricts to self + ipc')
+    } else {
+      log.warn('CSP connect-src may allow external connections; review app.security.csp')
+    }
+
+    // Capabilities quick scan for http/network perms (heuristic)
+    const capsDir = path.join(process.cwd(), 'src-tauri', 'capabilities')
+    if (fs.existsSync(capsDir)) {
+      const files = fs.readdirSync(capsDir).filter(f => f.endsWith('.json'))
+      const risky = []
+      for (const f of files) {
+        const cap = JSON.parse(fs.readFileSync(path.join(capsDir, f), 'utf8'))
+        const perms = (cap.permissions || []).join(',')
+        if (/http|request|net|network/i.test(perms)) {
+          risky.push(f)
+        }
+      }
+      if (risky.length === 0) {
+        log.info('Capabilities do not grant HTTP/network permissions')
+      } else {
+        log.warn(`Capabilities with potential network perms: ${risky.join(', ')}`)
+      }
+    }
   }
+
+  log.info('Tauri configuration checked')
 }
 
 function main() {

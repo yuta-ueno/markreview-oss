@@ -1,4 +1,5 @@
 import React, { forwardRef, memo, useMemo, useRef, useState, useCallback } from 'react'
+import DOMPurify from 'dompurify'
 import { useOptimizedMarkdown } from '../hooks/useMarkdown'
 import './Preview.css'
 
@@ -71,7 +72,8 @@ const VirtualizedPreview = memo(forwardRef<HTMLDivElement, VirtualizedPreviewPro
       // For now, we'll use a simpler approach without the hook in forEach
       // This will be improved in a future iteration
       const simpleHtml = `<div class="virtual-chunk">${item.content.replace(/\n/g, '<br>')}</div>`
-      processed.set(item.index, simpleHtml)
+      const sanitized = DOMPurify.sanitize(simpleHtml)
+      processed.set(item.index, sanitized)
     })
     
     return processed

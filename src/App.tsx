@@ -55,6 +55,8 @@ function App() {
     // Reset scroll positions when new content is loaded (not for unsaved changes)
     if (!hasChanges) {
       resetScrollPositions()
+      // Use toast/info instead of direct DOM manipulation
+      info(`FILE: ${filename}`)
     }
     
     // DOM-based feedback for file loading

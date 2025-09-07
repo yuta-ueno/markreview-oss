@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from 'react'
+import { useCallback, useRef, useEffect, type RefCallback } from 'react'
 
 export interface ScrollSyncOptions {
   enabled?: boolean
@@ -8,8 +8,8 @@ export interface ScrollSyncOptions {
 export const useScrollSync = (options: ScrollSyncOptions = {}) => {
   const { enabled = true, throttleDelay = 100 } = options
   
-  const editorRef = useRef<HTMLElement | null>(null)
-  const previewRef = useRef<HTMLElement | null>(null)
+  const editorRef = useRef<HTMLDivElement | null>(null)
+  const previewRef = useRef<HTMLDivElement | null>(null)
   const isScrollingSyncRef = useRef(false)
   const throttleTimerRef = useRef<number | null>(null)
 
@@ -168,11 +168,11 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
   }, [enabled, handleEditorScroll, handlePreviewScroll, getScrollElements])
 
   // Refs to be attached to editor and preview containers
-  const editorScrollRef = useCallback((node: HTMLElement | null) => {
+  const editorScrollRef: RefCallback<HTMLDivElement> = useCallback((node) => {
     editorRef.current = node
   }, [])
 
-  const previewScrollRef = useCallback((node: HTMLElement | null) => {
+  const previewScrollRef: RefCallback<HTMLDivElement> = useCallback((node) => {
     previewRef.current = node
   }, [])
 

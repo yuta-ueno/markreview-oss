@@ -14,6 +14,7 @@ import { useSettings } from './hooks/useSettings'
 import { useToast } from './hooks/useToast'
 import { useFileOperations, DEFAULT_CONTENT } from './hooks/useFileOperations'
 import { useTauriIntegration } from './hooks/useTauriIntegration'
+import { useWindowManager } from './hooks/useWindowManager'
 import { themeLogger } from './utils/logger'
 import { APP_CONFIG } from './utils/constants'
 import './App.css'
@@ -32,6 +33,8 @@ function App() {
 
   // Initialize settings and toast
   const { settings, updateSettings, resetSettings } = useSettings()
+  // Initialize window manager for size persistence
+  useWindowManager()
   const { toasts, removeToast, showToast, success, error, info } = useToast()
 
   // Setup scroll synchronization (needed before handleContentChange)
@@ -100,7 +103,8 @@ function App() {
 
   // Setup drag and drop for browser
   const { isDragging, dragAndDropProps } = useDragAndDrop({
-    onFilesDrop: handleFileRead,
+    // In Tauri, file drop is handled by Tauri events to avoid double-processing
+    onFilesDrop: isTauri ? undefined : handleFileRead,
     acceptedFileTypes: ['.md', '.markdown', '.txt'],
     onError: (errorMessage) => {
       error(errorMessage)
@@ -192,6 +196,7 @@ function App() {
                 >
                   <Preview
                     content={debouncedContent}
+                    settings={settings}
                     ref={previewScrollRef}
                   />
                 </ErrorBoundary>

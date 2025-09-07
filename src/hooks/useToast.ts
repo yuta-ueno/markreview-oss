@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { ToastMessage } from '../components/Toast'
 
 interface UseToastOptions {
@@ -7,12 +7,22 @@ interface UseToastOptions {
 
 export const useToast = ({ defaultDuration = 4000 }: UseToastOptions = {}) => {
   const [toasts, setToasts] = useState<ToastMessage[]>([])
+  // Deduplicate identical messages within a short window to avoid double toasts
+  const recentMapRef = useRef<Record<string, number>>({})
 
   const addToast = useCallback((
     message: string, 
     type: ToastMessage['type'] = 'info', 
     duration = defaultDuration
   ) => {
+    const now = Date.now()
+    const key = `${type}:${message}`
+    const last = recentMapRef.current[key] || 0
+    // Suppress duplicates within 2000ms
+    if (now - last < 2000) {
+      return ''
+    }
+
     const id = Date.now().toString() + Math.random().toString(36).substr(2, 9)
     const toast: ToastMessage = {
       id,
@@ -22,6 +32,14 @@ export const useToast = ({ defaultDuration = 4000 }: UseToastOptions = {}) => {
     }
 
     setToasts(prev => [...prev, toast])
+    recentMapRef.current[key] = now
+    // Clean entry after some time to prevent unbounded growth
+    setTimeout(() => {
+      // Only delete if the stored timestamp matches (avoid race with newer one)
+      if (recentMapRef.current[key] === now) {
+        delete recentMapRef.current[key]
+      }
+    }, Math.max(duration, 2000))
     return id
   }, [defaultDuration])
 

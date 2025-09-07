@@ -17,7 +17,9 @@
     "verify:no-telemetry": "node scripts/verify-no-telemetry.cjs",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "status": "node scripts/session-status.cjs",
+    "status:health": "node scripts/session-status.cjs --health"
   },
   "keywords": [],
   "author": "",

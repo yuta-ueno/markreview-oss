@@ -60,6 +60,9 @@ coverage/
 
 # Local contributor guide (keep out of VCS)
 AGENTS.md
+REFACTORING_ANALYSIS.md
+RELEASE_NOTES_0.1.7.md
+RELEASE_NOTES_0.1.8.md
 
 # Local status snapshot (keep out of VCS)
 STATUS.md

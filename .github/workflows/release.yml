@@ -70,14 +70,34 @@ jobs:
     - name: Install dependencies (Windows only)
       if: matrix.platform == 'windows-latest'
       run: npm ci
+
+    - name: Install NSIS (Windows only)
+      if: matrix.platform == 'windows-latest'
+      run: choco install nsis -y
     
     - name: Install Tauri CLI
       run: npm install -g @tauri-apps/cli
     
-    - name: Build Tauri application
+    - name: Build Tauri application (Windows)
+      if: matrix.platform == 'windows-latest'
       run: npm run tauri build
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAURI_BUNDLE_TARGETS: nsis
+
+    - name: Build Tauri application (macOS)
+      if: matrix.platform == 'macos-latest'
+      run: npm run tauri build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAURI_BUNDLE_TARGETS: dmg
+
+    - name: Build Tauri application (Linux)
+      if: matrix.platform == 'ubuntu-20.04'
+      run: npm run tauri build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAURI_BUNDLE_TARGETS: deb,appimage
     
     - name: Upload Windows MSI
       if: matrix.platform == 'windows-latest'

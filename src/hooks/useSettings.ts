@@ -13,7 +13,7 @@ const validateSettings = (settings: unknown): AppSettings => {
 
   // Merge with defaults to handle missing properties
   const validatedSettings: AppSettings = {
-    theme: s.theme && ['solarized-light', 'solarized-dark', 'auto'].includes(s.theme) 
+    theme: s.theme && ['github-light', 'github-dark', 'solarized-light', 'solarized-dark', 'nord', 'monokai', 'auto'].includes(s.theme) 
       ? s.theme 
       : DEFAULT_SETTINGS.theme,
     
@@ -33,46 +33,26 @@ const validateSettings = (settings: unknown): AppSettings => {
       wordWrap: typeof s.editor?.wordWrap === 'boolean'
         ? s.editor.wordWrap
         : DEFAULT_SETTINGS.editor.wordWrap,
-        
-      lineNumbers: typeof s.editor?.lineNumbers === 'boolean'
-        ? s.editor.lineNumbers
-        : DEFAULT_SETTINGS.editor.lineNumbers,
-        
-      minimap: typeof s.editor?.minimap === 'boolean'
-        ? s.editor.minimap
-        : DEFAULT_SETTINGS.editor.minimap,
     },
     
     preview: {
-      maxWidth: (typeof s.preview?.maxWidth === 'number' && s.preview.maxWidth > 0) || s.preview?.maxWidth === 'full'
-        ? s.preview.maxWidth
-        : DEFAULT_SETTINGS.preview.maxWidth,
-        
       syncScroll: typeof s.preview?.syncScroll === 'boolean'
         ? s.preview.syncScroll
         : DEFAULT_SETTINGS.preview.syncScroll,
-        
-      showLineNumbers: typeof s.preview?.showLineNumbers === 'boolean'
-        ? s.preview.showLineNumbers
-        : DEFAULT_SETTINGS.preview.showLineNumbers,
-        
-      highlightCurrentLine: typeof s.preview?.highlightCurrentLine === 'boolean'
-        ? s.preview.highlightCurrentLine
-        : DEFAULT_SETTINGS.preview.highlightCurrentLine,
     },
     
-    export: {
-      includeCSS: typeof s.export?.includeCSS === 'boolean'
-        ? s.export.includeCSS
-        : DEFAULT_SETTINGS.export.includeCSS,
-        
-      includeTitle: typeof s.export?.includeTitle === 'boolean'
-        ? s.export.includeTitle
-        : DEFAULT_SETTINGS.export.includeTitle,
-        
-      exportFormat: s.export?.exportFormat && ['html', 'pdf'].includes(s.export.exportFormat)
-        ? s.export.exportFormat
-        : DEFAULT_SETTINGS.export.exportFormat,
+    window: {
+      width: typeof s.window?.width === 'number' && s.window.width >= 400 && s.window.width <= 3840
+        ? s.window.width
+        : DEFAULT_SETTINGS.window.width,
+      height: typeof s.window?.height === 'number' && s.window.height >= 300 && s.window.height <= 2160
+        ? s.window.height
+        : DEFAULT_SETTINGS.window.height,
+      x: typeof s.window?.x === 'number' ? s.window.x : s.window?.x,
+      y: typeof s.window?.y === 'number' ? s.window.y : s.window?.y,
+      maximized: typeof s.window?.maximized === 'boolean'
+        ? s.window.maximized
+        : DEFAULT_SETTINGS.window.maximized,
     },
     
     shortcuts: typeof s.shortcuts === 'object' && s.shortcuts !== null
@@ -83,8 +63,59 @@ const validateSettings = (settings: unknown): AppSettings => {
   return validatedSettings
 }
 
-// Load settings from localStorage
-const loadSettings = (): AppSettings => {
+// File-based settings with localStorage migration
+const loadSettings = async (): Promise<AppSettings> => {
+  try {
+    // Try to load from file first (new method)
+    const fileSettings = await loadSettingsFromFile()
+    if (fileSettings) {
+      console.log('Settings: Loaded from file')
+      return fileSettings
+    }
+    
+    // Fallback to localStorage and migrate (legacy method)
+    console.log('Settings: File not found, checking localStorage')
+    const localStorageSettings = loadSettingsFromLocalStorage()
+    if (localStorageSettings && JSON.stringify(localStorageSettings) !== JSON.stringify(DEFAULT_SETTINGS)) {
+      console.log('Settings: Found localStorage settings, migrating to file')
+      await saveSettingsToFile(localStorageSettings)
+      // Keep localStorage as backup for now
+      return localStorageSettings
+    }
+    
+    console.log('Settings: No existing settings found, using defaults')
+    return DEFAULT_SETTINGS
+  } catch (error) {
+    console.error('Settings: Failed to load settings:', error)
+    // Fallback to localStorage in case of file system issues
+    return loadSettingsFromLocalStorage() || DEFAULT_SETTINGS
+  }
+}
+
+// Load from file system (new method)
+const loadSettingsFromFile = async (): Promise<AppSettings | null> => {
+  try {
+    const { appDataDir } = await import('@tauri-apps/api/path')
+    const { exists, readTextFile } = await import('@tauri-apps/plugin-fs')
+    
+    const appDataPath = await appDataDir()
+    const settingsPath = `${appDataPath}MarkReview/settings.json`
+    
+    if (await exists(settingsPath)) {
+      const content = await readTextFile(settingsPath)
+      const parsed = JSON.parse(content)
+      return validateSettings(parsed)
+    }
+    
+    return null
+  } catch (error) {
+    console.warn('Settings: Failed to load from file:', error)
+    return null
+  }
+}
+
+// Load from localStorage (legacy method)
+const loadSettingsFromLocalStorage = (): AppSettings | null => {
   try {
     const stored = localStorage.getItem(SETTINGS_STORAGE_KEY)
     if (stored) {
@@ -92,26 +123,86 @@ const loadSettings = (): AppSettings => {
       return validateSettings(parsed)
     }
   } catch (error) {
-    console.warn('Failed to load settings from localStorage:', error)
+    console.warn('Settings: Failed to load from localStorage:', error)
   }
-  
-  return DEFAULT_SETTINGS
+  return null
 }
 
-// Save settings to localStorage
-const saveSettings = (settings: AppSettings): void => {
+// Save to both file and localStorage (dual method for safety)
+const saveSettings = async (settings: AppSettings): Promise<void> => {
+  try {
+    // Save to file (primary method)
+    await saveSettingsToFile(settings)
+    
+    // Keep localStorage as backup
+    saveSettingsToLocalStorage(settings)
+    
+    console.log('Settings: Saved to both file and localStorage')
+  } catch (error) {
+    console.error('Settings: Failed to save to file, falling back to localStorage only:', error)
+    saveSettingsToLocalStorage(settings)
+  }
+}
+
+// Save to file system (new method)
+const saveSettingsToFile = async (settings: AppSettings): Promise<void> => {
+  try {
+    const { appDataDir } = await import('@tauri-apps/api/path')
+    const { exists, mkdir, writeTextFile } = await import('@tauri-apps/plugin-fs')
+    
+    const appDataPath = await appDataDir()
+    const markReviewDir = `${appDataPath}MarkReview`
+    const settingsPath = `${markReviewDir}/settings.json`
+    
+    // Ensure directory exists
+    if (!(await exists(markReviewDir))) {
+      await mkdir(markReviewDir, { recursive: true })
+      console.log('Settings: Created MarkReview directory')
+    }
+    
+    // Write settings file
+    await writeTextFile(settingsPath, JSON.stringify(settings, null, 2))
+    console.log('Settings: Saved to file:', settingsPath)
+  } catch (error) {
+    console.error('Settings: Failed to save to file:', error)
+    throw error
+  }
+}
+
+// Save to localStorage (legacy method)
+const saveSettingsToLocalStorage = (settings: AppSettings): void => {
   try {
     localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
   } catch (error) {
-    console.error('Failed to save settings to localStorage:', error)
+    console.error('Settings: Failed to save to localStorage:', error)
   }
 }
 
 export const useSettings = () => {
-  const [settings, setSettingsState] = useState<AppSettings>(loadSettings)
+  const [settings, setSettingsState] = useState<AppSettings>(DEFAULT_SETTINGS)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Load settings on mount
+  useEffect(() => {
+    const initializeSettings = async () => {
+      try {
+        console.log('Settings: Initializing settings')
+        const loadedSettings = await loadSettings()
+        setSettingsState(loadedSettings)
+        console.log('Settings: Initialization complete')
+      } catch (error) {
+        console.error('Settings: Failed to initialize:', error)
+        setSettingsState(DEFAULT_SETTINGS)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    initializeSettings()
+  }, [])
 
   // Update settings with validation and persistence
-  const updateSettings = useCallback((newSettings: Partial<AppSettings>) => {
+  const updateSettings = useCallback(async (newSettings: Partial<AppSettings>) => {
     setSettingsState(currentSettings => {
       const mergedSettings = {
         ...currentSettings,
@@ -123,8 +214,8 @@ export const useSettings = () => {
         ...(newSettings.preview && {
           preview: { ...currentSettings.preview, ...newSettings.preview }
         }),
-        ...(newSettings.export && {
-          export: { ...currentSettings.export, ...newSettings.export }
+        ...(newSettings.window && {
+          window: { ...currentSettings.window, ...newSettings.window }
         }),
         ...(newSettings.shortcuts && {
           shortcuts: { ...currentSettings.shortcuts, ...newSettings.shortcuts }
@@ -132,16 +223,22 @@ export const useSettings = () => {
       }
       
       const validatedSettings = validateSettings(mergedSettings)
-      saveSettings(validatedSettings)
+      
+      // Save settings asynchronously
+      saveSettings(validatedSettings).catch(error => {
+        console.error('Settings: Failed to save during update:', error)
+      })
+      
       return validatedSettings
     })
   }, [])
 
   // Reset settings to defaults
-  const resetSettings = useCallback(() => {
+  const resetSettings = useCallback(async () => {
+    console.log('Settings: Resetting to defaults')
     const defaultSettings = validateSettings(DEFAULT_SETTINGS)
     setSettingsState(defaultSettings)
-    saveSettings(defaultSettings)
+    await saveSettings(defaultSettings)
   }, [])
 
   // Export settings as JSON
@@ -150,15 +247,15 @@ export const useSettings = () => {
   }, [settings])
 
   // Import settings from JSON
-  const importSettings = useCallback((jsonString: string): boolean => {
+  const importSettings = useCallback(async (jsonString: string): Promise<boolean> => {
     try {
       const imported = JSON.parse(jsonString)
       const validatedSettings = validateSettings(imported)
       setSettingsState(validatedSettings)
-      saveSettings(validatedSettings)
+      await saveSettings(validatedSettings)
       return true
     } catch (error) {
-      console.error('Failed to import settings:', error)
+      console.error('Settings: Failed to import settings:', error)
       return false
     }
   }, [])
@@ -180,6 +277,7 @@ export const useSettings = () => {
 
   return {
     settings,
+    isLoading,
     updateSettings,
     resetSettings,
     exportSettings,

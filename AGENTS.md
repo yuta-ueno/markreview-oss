@@ -7,6 +7,7 @@
 - For a quick health check, run `npm run status:health` to execute TypeScript typecheck and `vitest run`.
 - If telemetry settings are relevant, run `npm run verify:no-telemetry` and address any failures before continuing.
 - Prefer `rg` (ripgrep) for code search when available, e.g., `rg -n "TODO|FIXME|HACK|@todo" -S`.
+- If present, read local `STATUS.md` for a human‑written snapshot of the current state. Note: `STATUS.md` is ignored by git and intended for local use only.
 
 ## Project Structure & Module Organization
 - `src/` React + TypeScript app: `components/` (UI, PascalCase, e.g., `Toolbar.tsx`), `hooks/` (custom hooks, `use*.ts`), `utils/`, `styles/`, `assets/`.

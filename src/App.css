@@ -1,101 +1,154 @@
-/* Solarized Color Palette */
+/* Universal App Theme Variables */
 :root {
-  /* Solarized Base Colors */
-  --sol-base03: #002b36;
-  --sol-base02: #073642;
-  --sol-base01: #586e75;
-  --sol-base00: #657b83;
-  --sol-base0: #839496;
-  --sol-base1: #93a1a1;
-  --sol-base2: #eee8d5;
-  --sol-base3: #fdf6e3;
-  
-  /* Solarized Accent Colors */
-  --sol-yellow: #b58900;
-  --sol-orange: #cb4b16;
-  --sol-red: #dc322f;
-  --sol-magenta: #d33682;
-  --sol-violet: #6c71c4;
-  --sol-blue: #268bd2;
-  --sol-cyan: #2aa198;
-  --sol-green: #859900;
-}
-
-/* Light theme (default) */
-:root {
-  --text-color: var(--sol-base00);
-  --text-muted: var(--sol-base1);
-  --text-secondary: var(--sol-base1);
-  --bg-primary: var(--sol-base3);
-  --bg-secondary: var(--sol-base2);
-  --bg-tertiary: #eee8d5;
-  --bg-hover: #e3dcc9;
-  --hover-bg: #e3dcc9;
-  --border-color: var(--sol-base2);
-  --accent-color: var(--sol-blue);
-  --error-color: var(--sol-red);
-  --success-color: var(--sol-green);
-  --warning-color: var(--sol-orange);
-  --info-color: var(--sol-blue);
+  /* GitHub Light (default) - UI Variables */
+  --text-color: #24292f;
+  --text-muted: #57606a;
+  --text-secondary: #57606a;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #f0f3f6;
+  --bg-hover: #e5e9ed;
+  --hover-bg: #e5e9ed;
+  --border-color: #d0d7de;
+  --accent-color: #0969da;
+  --error-color: #cf222e;
+  --success-color: #0a7d2e;
+  --warning-color: #953800;
+  --info-color: #0969da;
   --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
+/* GitHub Light */
+[data-theme="github-light"] {
+  --text-color: #24292f;
+  --text-muted: #57606a;
+  --text-secondary: #57606a;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #f0f3f6;
+  --bg-hover: #e5e9ed;
+  --hover-bg: #e5e9ed;
+  --border-color: #d0d7de;
+  --accent-color: #0969da;
+  --error-color: #cf222e;
+  --success-color: #0a7d2e;
+  --warning-color: #953800;
+  --info-color: #0969da;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
 
-/* Solarized Light theme */
+/* GitHub Dark */
+[data-theme="github-dark"] {
+  --text-color: #c9d1d9;
+  --text-muted: #8b949e;
+  --text-secondary: #8b949e;
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-hover: #30363d;
+  --hover-bg: #30363d;
+  --border-color: #30363d;
+  --accent-color: #58a6ff;
+  --error-color: #ff7b72;
+  --success-color: #7ee787;
+  --warning-color: #d2a8ff;
+  --info-color: #58a6ff;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Solarized Light */
 [data-theme="solarized-light"] {
-  --text-color: var(--sol-base00);
-  --text-muted: var(--sol-base1);
-  --text-secondary: var(--sol-base1);
-  --bg-primary: var(--sol-base3);
-  --bg-secondary: var(--sol-base2);
+  --text-color: #586e75;
+  --text-muted: #657b83;
+  --text-secondary: #657b83;
+  --bg-primary: #fdf6e3;
+  --bg-secondary: #eee8d5;
   --bg-tertiary: #f7f2e8;
   --bg-hover: #e6dcc5;
   --hover-bg: #e6dcc5;
-  --border-color: var(--sol-base2);
-  --accent-color: var(--sol-blue);
-  --error-color: var(--sol-red);
-  --success-color: var(--sol-green);
-  --warning-color: var(--sol-orange);
-  --info-color: var(--sol-blue);
+  --border-color: #e2ddc9;
+  --accent-color: #268bd2;
+  --error-color: #dc322f;
+  --success-color: #859900;
+  --warning-color: #cb4b16;
+  --info-color: #268bd2;
   --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Solarized Dark theme */
+/* Solarized Dark */
 [data-theme="solarized-dark"] {
-  --text-color: var(--sol-base0);
-  --text-muted: var(--sol-base01);
-  --text-secondary: var(--sol-base01);
-  --bg-primary: var(--sol-base03);
-  --bg-secondary: var(--sol-base02);
+  --text-color: #eee8d5;
+  --text-muted: #93a1a1;
+  --text-secondary: #93a1a1;
+  --bg-primary: #002b36;
+  --bg-secondary: #073642;
   --bg-tertiary: #0a3541;
   --bg-hover: #0f4450;
   --hover-bg: #0f4450;
-  --border-color: var(--sol-base02);
-  --accent-color: var(--sol-cyan);
-  --error-color: var(--sol-red);
-  --success-color: var(--sol-green);
-  --warning-color: var(--sol-orange);
-  --info-color: var(--sol-cyan);
+  --border-color: #0f3640;
+  --accent-color: #268bd2;
+  --error-color: #dc322f;
+  --success-color: #859900;
+  --warning-color: #cb4b16;
+  --info-color: #268bd2;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Nord */
+[data-theme="nord"] {
+  --text-color: #2e3440;
+  --text-muted: #4c566a;
+  --text-secondary: #4c566a;
+  --bg-primary: #eceff4;
+  --bg-secondary: #e5e9f0;
+  --bg-tertiary: #dde1e6;
+  --bg-hover: #d8dee9;
+  --hover-bg: #d8dee9;
+  --border-color: #d8dee9;
+  --accent-color: #5e81ac;
+  --error-color: #bf616a;
+  --success-color: #a3be8c;
+  --warning-color: #d08770;
+  --info-color: #5e81ac;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Monokai */
+[data-theme="monokai"] {
+  --text-color: #f8f8f2;
+  --text-muted: #a6a6a6;
+  --text-secondary: #a6a6a6;
+  --bg-primary: #272822;
+  --bg-secondary: #2d2e27;
+  --bg-tertiary: #3e3d32;
+  --bg-hover: #49483e;
+  --hover-bg: #49483e;
+  --border-color: #3e3d32;
+  --accent-color: #66d9ef;
+  --error-color: #f92672;
+  --success-color: #a6e22e;
+  --warning-color: #fd971f;
+  --info-color: #66d9ef;
   --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 /* Auto theme - system preference */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --text-color: var(--sol-base0);
-    --text-muted: var(--sol-base01);
-    --text-secondary: var(--sol-base01);
-    --bg-primary: var(--sol-base03);
-    --bg-secondary: var(--sol-base02);
-    --bg-tertiary: #0a3541;
-    --bg-hover: #0f4450;
-    --hover-bg: #0f4450;
-    --border-color: var(--sol-base02);
-    --accent-color: var(--sol-cyan);
-    --error-color: var(--sol-red);
-    --success-color: var(--sol-green);
-    --warning-color: var(--sol-orange);
-    --info-color: var(--sol-cyan);
+    --text-color: #c9d1d9;
+    --text-muted: #8b949e;
+    --text-secondary: #8b949e;
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-tertiary: #21262d;
+    --bg-hover: #30363d;
+    --hover-bg: #30363d;
+    --border-color: #30363d;
+    --accent-color: #58a6ff;
+    --error-color: #ff7b72;
+    --success-color: #7ee787;
+    --warning-color: #d2a8ff;
+    --info-color: #58a6ff;
     --shadow-color: rgba(0, 0, 0, 0.3);
   }
 }

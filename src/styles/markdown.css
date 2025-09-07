@@ -1,72 +1,330 @@
-/* Solarized syntax highlighting */
-.markdown-body .hljs {
-  display: block;
-  overflow-x: auto;
-  padding: 0.5em;
-  background: var(--bg-secondary);
-  color: var(--text-color);
-}
+/*
+  Markdown Viewer Theme Packs
+  ---------------------------------
+  Drop-in CSS for a Markdown viewer that supports multiple color themes.
+  How to use:
+    <div class="markdown-body" data-theme="github-light"> ... </div>
+    Switch themes by changing the data-theme attribute to one of:
+      - github-light | github-dark
+      - solarized-light | solarized-dark
+      - nord | monokai
+    Optionally: data-theme="auto" will follow prefers-color-scheme.
 
-/* Solarized Light colors */
-:root {
-  --hljs-comment: #93a1a1;
-  --hljs-keyword: #859900;
-  --hljs-string: #2aa198;
-  --hljs-number: #d33682;
-  --hljs-title: #268bd2;
-  --hljs-built-in: #b58900;
-  --hljs-literal: #dc322f;
-}
+  Design goals:
+    - One variable system for body, typography, links, code (inline + blocks), tables, blockquotes.
+    - Consistent Highlight.js token colors via CSS variables.
+    - Accessible contrast (aim for ~AA). Adjust as needed for your brand.
+*/
 
-/* Solarized Dark colors */
-[data-theme="solarized-dark"] {
-  --hljs-comment: #586e75;
-  --hljs-keyword: #859900;
-  --hljs-string: #2aa198;
-  --hljs-number: #d33682;
-  --hljs-title: #268bd2;
-  --hljs-built-in: #b58900;
-  --hljs-literal: #dc322f;
-}
-
-/* Auto theme dark mode */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --hljs-comment: #586e75;
-    --hljs-keyword: #859900;
-    --hljs-string: #2aa198;
-    --hljs-number: #d33682;
-    --hljs-title: #268bd2;
-    --hljs-built-in: #b58900;
-    --hljs-literal: #dc322f;
-  }
-}
-
-/* Highlight.js token styles */
-.markdown-body .hljs-comment { color: var(--hljs-comment); font-style: italic; }
-.markdown-body .hljs-keyword { color: var(--hljs-keyword); font-weight: bold; }
-.markdown-body .hljs-string { color: var(--hljs-string); }
-.markdown-body .hljs-number { color: var(--hljs-number); }
-.markdown-body .hljs-title { color: var(--hljs-title); font-weight: bold; }
-.markdown-body .hljs-built_in { color: var(--hljs-built-in); }
-.markdown-body .hljs-literal { color: var(--hljs-literal); }
-.markdown-body .hljs-type { color: var(--hljs-title); }
-.markdown-body .hljs-class { color: var(--hljs-title); }
-.markdown-body .hljs-function { color: var(--hljs-title); }
-.markdown-body .hljs-variable { color: var(--hljs-number); }
-.markdown-body .hljs-meta { color: var(--hljs-comment); }
-
-/* Solarized Markdown styles */
+/* ---------------------------------
+   1) Variable contract (do not edit tokens names)
+   --------------------------------- */
+/* Default theme (GitHub Light) - fallback when no data-theme attribute */
 .markdown-body {
+  /* CSS Variables */
+  --bg: #ffffff;
+  --text: #24292f; /* main body text */
+  --muted: #57606a; /* secondary text */
+  --accent: #0969da; /* links */
+  --border: #d0d7de; /* borders, hr, table grid */
+  --focus: #1f6feb; /* focus/hover accent */
+
+  /* Components */
+  --blockquote-border: #c9d1d9;
+  --table-stripe: rgba(27, 31, 36, 0.06);
+  --code-bg: #f6f8fa;
+  --code-text: #1f2328;
+  --code-border: #eaeef2;
+
+  /* Highlight.js tokens */
+  --hljs-bg: var(--code-bg);
+  --hljs-text: var(--code-text);
+  --hljs-comment: #6e7781;
+  --hljs-keyword: #cf222e;
+  --hljs-string: #0a7d2e;
+  --hljs-number: #0550ae;
+  --hljs-title: #953800;
+  --hljs-built-in: #7447bc;
+  --hljs-literal: #1f6feb;
+
+  /* Base Styling */
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding: 16px;
   box-sizing: border-box;
   min-width: 200px;
   max-width: none;
-  padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--text-color);
   word-wrap: break-word;
+}
+
+/* ---------------------------------
+   2) Theme packs
+   --------------------------------- */
+/* GitHub Light */
+.markdown-body[data-theme='github-light'] {
+  --bg: #ffffff;
+  --text: #24292f;
+  --muted: #57606a;
+  --accent: #0969da;
+  --border: #d0d7de;
+  --focus: #1f6feb;
+  --blockquote-border: #d0d7de;
+  --table-stripe: rgba(27, 31, 36, 0.06);
+  --code-bg: #f6f8fa;
+  --code-text: #1f2328;
+  --code-border: #eaeef2;
+  --hljs-bg: var(--code-bg);
+  --hljs-text: var(--code-text);
+  --hljs-comment: #6e7781;
+  --hljs-keyword: #cf222e;
+  --hljs-string: #0a7d2e;
+  --hljs-number: #0550ae;
+  --hljs-title: #953800;
+  --hljs-built-in: #7447bc;
+  --hljs-literal: #1f6feb;
+}
+
+/* GitHub Dark */
+.markdown-body[data-theme='github-dark'] {
+  --bg: #0d1117;
+  --text: #c9d1d9;
+  --muted: #8b949e;
+  --accent: #58a6ff;
+  --border: #30363d;
+  --focus: #1f6feb;
+  --blockquote-border: #30363d;
+  --table-stripe: rgba(240, 246, 252, 0.05);
+  --code-bg: #161b22;
+  --code-text: #c9d1d9;
+  --code-border: #30363d;
+  --hljs-bg: var(--code-bg);
+  --hljs-text: var(--code-text);
+  --hljs-comment: #8b949e;
+  --hljs-keyword: #ff7b72;
+  --hljs-string: #7ee787;
+  --hljs-number: #79c0ff;
+  --hljs-title: #d2a8ff;
+  --hljs-built-in: #ffa657;
+  --hljs-literal: #a5d6ff;
+}
+
+/* Solarized Light */
+.markdown-body[data-theme='solarized-light'] {
+  --bg: #fdf6e3;
+  --text: #586e75; /* base01 */
+  --muted: #657b83; /* base00 */
+  --accent: #268bd2; /* blue */
+  --border: #e2ddc9;
+  --focus: #268bd2;
+  --blockquote-border: #eee8d5;
+  --table-stripe: rgba(101, 123, 131, 0.08);
+  --code-bg: #eee8d5;
+  --code-text: #073642; /* base02 */
+  --code-border: #e2ddc9;
+  --hljs-bg: var(--code-bg);
+  --hljs-text: var(--code-text);
+  --hljs-comment: #93a1a1;
+  --hljs-keyword: #859900; /* green */
+  --hljs-string: #2aa198; /* cyan */
+  --hljs-number: #268bd2; /* blue */
+  --hljs-title: #b58900; /* yellow */
+  --hljs-built-in: #d33682; /* magenta */
+  --hljs-literal: #cb4b16; /* orange */
+}
+
+/* Solarized Dark */
+.markdown-body[data-theme='solarized-dark'] {
+  --bg: #002b36;
+  --text: #eee8d5; /* base2 */
+  --muted: #93a1a1; /* base1 */
+  --accent: #268bd2;
+  --border: #0f3640;
+  --focus: #268bd2;
+  --blockquote-border: #073642;
+  --table-stripe: rgba(238, 232, 213, 0.06);
+  --code-bg: #073642;
+  --code-text: #eee8d5;
+  --code-border: #0f3640;
+  --hljs-bg: var(--code-bg);
+  --hljs-text: var(--code-text);
+  --hljs-comment: #93a1a1;
+  --hljs-keyword: #859900;
+  --hljs-string: #2aa198;
+  --hljs-number: #268bd2;
+  --hljs-title: #b58900;
+  --hljs-built-in: #d33682;
+  --hljs-literal: #cb4b16;
+}
+
+/* Nord (light-ish variant) */
+.markdown-body[data-theme='nord'] {
+  --bg: #eceff4; /* nord6 */
+  --text: #2e3440; /* nord0 */
+  --muted: #4c566a; /* nord3 */
+  --accent: #5e81ac; /* nord10 */
+  --border: #d8dee9; /* nord4 */
+  --focus: #81a1c1; /* nord9 */
+  --blockquote-border: #d8dee9;
+  --table-stripe: rgba(46, 52, 64, 0.05);
+  --code-bg: #e5e9f0; /* nord5 */
+  --code-text: #2e3440;
+  --code-border: #d8dee9;
+  --hljs-bg: var(--code-bg);
+  --hljs-text: var(--code-text);
+  --hljs-comment: #616e88;
+  --hljs-keyword: #81a1c1;
+  --hljs-string: #a3be8c;
+  --hljs-number: #88c0d0;
+  --hljs-title: #d08770;
+  --hljs-built-in: #b48ead;
+  --hljs-literal: #5e81ac;
+}
+
+/* Monokai (dark) */
+.markdown-body[data-theme='monokai'] {
+  --bg: #272822;
+  --text: #f8f8f2;
+  --muted: #a6a6a6;
+  --accent: #66d9ef;
+  --border: #3e3d32;
+  --focus: #a6e22e;
+  --blockquote-border: #3e3d32;
+  --table-stripe: rgba(248, 248, 242, 0.05);
+  --code-bg: #2d2e27;
+  --code-text: #f8f8f2;
+  --code-border: #3e3d32;
+  --hljs-bg: var(--code-bg);
+  --hljs-text: var(--code-text);
+  --hljs-comment: #75715e;
+  --hljs-keyword: #f92672;
+  --hljs-string: #e6db74;
+  --hljs-number: #ae81ff;
+  --hljs-title: #a6e22e;
+  --hljs-built-in: #fd971f;
+  --hljs-literal: #66d9ef;
+}
+
+/* Auto follow system setting */
+@media (prefers-color-scheme: dark) {
+  .markdown-body[data-theme='auto'] {
+    /* pick a dark pack for auto */
+    --bg: #0d1117;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --border: #30363d;
+    --focus: #1f6feb;
+    --blockquote-border: #30363d;
+    --table-stripe: rgba(240, 246, 252, 0.05);
+    --code-bg: #161b22;
+    --code-text: #c9d1d9;
+    --code-border: #30363d;
+    --hljs-bg: var(--code-bg);
+    --hljs-text: var(--code-text);
+    --hljs-comment: #8b949e;
+    --hljs-keyword: #ff7b72;
+    --hljs-string: #7ee787;
+    --hljs-number: #79c0ff;
+    --hljs-title: #d2a8ff;
+    --hljs-built-in: #ffa657;
+    --hljs-literal: #a5d6ff;
+  }
+}
+@media (prefers-color-scheme: light) {
+  .markdown-body[data-theme='auto'] {
+    /* pick a light pack for auto */
+    --bg: #ffffff;
+    --text: #24292f;
+    --muted: #57606a;
+    --accent: #0969da;
+    --border: #d0d7de;
+    --focus: #1f6feb;
+    --blockquote-border: #d0d7de;
+    --table-stripe: rgba(27, 31, 36, 0.06);
+    --code-bg: #f6f8fa;
+    --code-text: #1f2328;
+    --code-border: #eaeef2;
+    --hljs-bg: var(--code-bg);
+    --hljs-text: var(--code-text);
+    --hljs-comment: #6e7781;
+    --hljs-keyword: #cf222e;
+    --hljs-string: #0a7d2e;
+    --hljs-number: #0550ae;
+    --hljs-title: #953800;
+    --hljs-built-in: #7447bc;
+    --hljs-literal: #1f6feb;
+  }
+}
+
+/* ---------------------------------
+   4) Highlight.js token mapping
+   --------------------------------- */
+.markdown-body pre code.hljs {
+  display: block;
+  background: var(--hljs-bg);
+  color: var(--hljs-text);
+  overflow-x: auto;
+  padding: 0.5em;
+}
+.markdown-body .hljs-comment,
+.markdown-body .hljs-quote {
+  color: var(--hljs-comment);
+  font-style: italic;
+}
+.markdown-body .hljs-keyword,
+.markdown-body .hljs-selector-tag,
+.markdown-body .hljs-subst {
+  color: var(--hljs-keyword);
+}
+.markdown-body .hljs-string,
+.markdown-body .hljs-title,
+.markdown-body .hljs-section,
+.markdown-body .hljs-type {
+  color: var(--hljs-string);
+}
+.markdown-body .hljs-number,
+.markdown-body .hljs-literal,
+.markdown-body .hljs-symbol,
+.markdown-body .hljs-bullet {
+  color: var(--hljs-number);
+}
+.markdown-body .hljs-attr,
+.markdown-body .hljs-built_in,
+.markdown-body .hljs-builtin-name {
+  color: var(--hljs-built-in);
+}
+.markdown-body .hljs-name,
+.markdown-body .hljs-title.class_,
+.markdown-body .hljs-title.function_ {
+  color: var(--hljs-title);
+}
+
+/* ---------------------------------
+   3) Base Markdown styling using the variables
+   --------------------------------- */
+
+.markdown-body a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.markdown-body a:hover,
+.markdown-body a:focus {
+  color: var(--focus);
+}
+
+.markdown-body p,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body blockquote,
+.markdown-body pre,
+.markdown-body table {
+  margin: 16px 0;
 }
 
 .markdown-body h1,
@@ -75,120 +333,122 @@
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-  margin-top: 24px;
-  margin-bottom: 16px;
-  font-weight: 600;
+  color: var(--text);
+  margin: 24px 0 12px;
+  font-weight: 700;
   line-height: 1.25;
-  color: var(--text-color);
+}
+.markdown-body h1,
+.markdown-body h2 {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
 }
 
 .markdown-body h1 {
   font-size: 2em;
-  padding-bottom: 0.3em;
-  border-bottom: 1px solid var(--border-color);
 }
-
 .markdown-body h2 {
   font-size: 1.5em;
-  padding-bottom: 0.3em;
-  border-bottom: 1px solid var(--border-color);
 }
-
 .markdown-body h3 {
   font-size: 1.25em;
 }
-
 .markdown-body h4 {
   font-size: 1em;
 }
-
 .markdown-body h5 {
   font-size: 0.875em;
 }
-
 .markdown-body h6 {
   font-size: 0.85em;
-  color: var(--text-muted);
-}
-
-.markdown-body p {
-  margin-top: 0;
-  margin-bottom: 16px;
+  color: var(--muted);
 }
 
 .markdown-body blockquote {
-  margin: 0;
-  padding: 0 16px;
-  color: var(--text-muted);
-  border-left: 0.25em solid var(--border-color);
+  color: var(--muted);
+  border-left: 4px solid var(--blockquote-border);
+  padding: 8px 16px;
+  margin: 16px 0;
+  background: transparent;
 }
 
+/* Lists */
 .markdown-body ul,
 .markdown-body ol {
-  margin-top: 0;
-  margin-bottom: 16px;
-  padding-left: 32px;
+  padding-left: 28px;
 }
 
 .markdown-body li {
   margin-bottom: 0.25em;
 }
 
-.markdown-body code {
-  padding: 0.2em 0.4em;
-  margin: 0;
-  font-size: 85%;
-  background-color: var(--bg-secondary);
+/* Inline code */
+.markdown-body :not(pre) > code {
+  background: var(--code-bg);
+  color: var(--code-text);
+  border: 1px solid var(--code-border);
   border-radius: 6px;
-  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+  padding: 0 0.35em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.95em;
 }
 
+/* Code blocks */
 .markdown-body pre {
-  padding: 16px;
+  background: var(--code-bg);
+  color: var(--code-text);
+  border: 1px solid var(--code-border);
+  border-radius: 8px;
+  padding: 14px 16px;
   overflow: auto;
-  font-size: 85%;
-  line-height: 1.45;
-  background-color: var(--bg-secondary);
-  border-radius: 6px;
-  margin-bottom: 16px;
 }
-
 .markdown-body pre code {
-  background-color: transparent;
+  background: transparent;
   border: 0;
   padding: 0;
-  font-size: 100%;
+  color: inherit;
 }
 
+/* Tables */
 .markdown-body table {
-  border-spacing: 0;
   border-collapse: collapse;
-  margin-bottom: 16px;
   width: 100%;
 }
-
-.markdown-body table th,
-.markdown-body table td {
-  padding: 6px 13px;
-  border: 1px solid var(--border-color);
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+}
+.markdown-body th {
+  background: var(--code-bg);
+  text-align: left;
+}
+.markdown-body tr:nth-child(2n) {
+  background: var(--table-stripe);
 }
 
-.markdown-body table th {
-  font-weight: 600;
-  background-color: var(--bg-secondary);
+/* Horizontal rule */
+.markdown-body hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
 }
 
-.markdown-body table tr:nth-child(2n) {
-  background-color: var(--bg-secondary);
+/* Images */
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
 }
 
-.markdown-body a {
-  color: var(--accent-color);
-  text-decoration: none;
+/* Task lists */
+.markdown-body input[type='checkbox'] {
+  margin-right: 8px;
 }
 
-.markdown-body a:hover {
-  text-decoration: underline;
+.markdown-body li.task-list-item {
+  list-style-type: none;
+  margin-left: -24px;
 }
 
 .markdown-body strong {
@@ -203,14 +463,8 @@
   text-decoration: line-through;
 }
 
-/* Task list items */
-.markdown-body input[type="checkbox"] {
-  margin-right: 8px;
+/* Code block focus ring for accessibility */
+.markdown-body pre:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
-
-.markdown-body li.task-list-item {
-  list-style-type: none;
-  margin-left: -24px;
-}
-
-/* Solarized themes now use CSS variables - no media queries needed */

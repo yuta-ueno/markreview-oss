@@ -3,25 +3,42 @@ import { EditorView, basicSetup } from 'codemirror'
 import { EditorState } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown'
 import { solarizedLight, solarizedDark } from '@uiw/codemirror-theme-solarized'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+import { nord } from '@uiw/codemirror-theme-nord'
+import { monokai } from '@uiw/codemirror-theme-monokai'
+import { lineNumbers as showLineNumbers } from '@codemirror/view'
+import { indentUnit } from '@codemirror/language'
 import { editorLogger } from '../utils/logger'
+import { ThemeMode } from '../types/settings'
 import './CodeMirrorEditor.css'
 
 interface CodeMirrorEditorProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
-  theme?: 'solarized-light' | 'solarized-dark'
+  theme?: ThemeMode
+  // Editor settings
+  fontSize?: number
+  fontFamily?: string
+  tabSize?: number
+  wordWrap?: boolean
 }
 
 const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
   value,
   onChange,
   placeholder = 'Start typing your markdown...',
-  theme = 'solarized-light',
+  theme = 'github-light',
+  // Editor settings with defaults
+  fontSize = 14,
+  fontFamily = 'Monaco, Menlo, Ubuntu Mono, Consolas, monospace',
+  tabSize = 2,
+  wordWrap = true,
 }) => {
   const editor = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const currentTheme = useRef<string>(theme)
+  const isProgrammaticUpdate = useRef<boolean>(false)
 
   useEffect(() => {
     if (!editor.current) return
@@ -49,19 +66,23 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
       markdown(),
       EditorState.changeFilter.of(() => true),
       EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
+        if (update.docChanged && !isProgrammaticUpdate.current) {
+          // Only trigger onChange for user-initiated changes
           const newValue = update.state.doc.toString()
           handleChange(newValue)
         }
       }),
+      // Tab size configuration
+      indentUnit.of(' '.repeat(tabSize)),
       EditorView.theme({
         '&': {
           height: '100%',
         },
         '.cm-scroller': {
-          fontFamily: 'Monaco, Menlo, Ubuntu Mono, Consolas, monospace',
-          fontSize: '14px',
+          fontFamily: fontFamily,
+          fontSize: `${fontSize}px`,
           lineHeight: '1.5',
+          ...(wordWrap ? {} : { whiteSpace: 'nowrap', overflowX: 'auto' }),
         },
         '.cm-focused': {
           outline: 'none',
@@ -76,13 +97,44 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
       }),
     ]
 
-    // Apply Solarized theme
-    editorLogger.themeApplying(theme)
-    if (theme === 'solarized-dark') {
-      extensions.push(solarizedDark)
-    } else {
-      extensions.push(solarizedLight)
+    // Apply line numbers (always enabled)
+    extensions.push(showLineNumbers())
+
+    // Apply word wrap setting
+    if (wordWrap) {
+      extensions.push(EditorView.lineWrapping)
     }
+
+    // Apply theme
+    editorLogger.themeApplying(theme)
+    
+    // Map theme to CodeMirror theme
+    const getCodeMirrorTheme = (themeMode: ThemeMode) => {
+      // Check system preference for auto theme
+      if (themeMode === 'auto') {
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+        return isDarkMode ? githubDark : githubLight
+      }
+      
+      switch (themeMode) {
+        case 'github-light':
+          return githubLight
+        case 'github-dark':
+          return githubDark
+        case 'solarized-light':
+          return solarizedLight
+        case 'solarized-dark':
+          return solarizedDark
+        case 'nord':
+          return nord
+        case 'monokai':
+          return monokai
+        default:
+          return githubLight // fallback
+      }
+    }
+    
+    extensions.push(getCodeMirrorTheme(theme))
 
     if (placeholder) {
       extensions.push(
@@ -100,6 +152,9 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
       )
     }
 
+    // Set flag to prevent onChange trigger during editor initialization
+    isProgrammaticUpdate.current = true
+    
     const state = EditorState.create({
       doc: value,
       extensions,
@@ -109,6 +164,11 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
       state,
       parent: editor.current,
     })
+    
+    // Reset flag after initialization
+    setTimeout(() => {
+      isProgrammaticUpdate.current = false
+    }, 50)
 
     return () => {
       if (viewRef.current) {
@@ -117,11 +177,14 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme, placeholder]) // Recreate editor when theme changes
+  }, [theme, placeholder, fontSize, fontFamily, tabSize, wordWrap]) // Add editor settings to dependencies
 
   // Update editor content when value changes externally
   useEffect(() => {
     if (viewRef.current && viewRef.current.state.doc.toString() !== value) {
+      // Set flag to prevent onChange trigger during programmatic update
+      isProgrammaticUpdate.current = true
+      
       viewRef.current.dispatch({
         changes: {
           from: 0,
@@ -129,6 +192,11 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
           insert: value,
         },
       })
+      
+      // Reset flag after a short delay to allow the update to complete
+      setTimeout(() => {
+        isProgrammaticUpdate.current = false
+      }, 10)
     }
   }, [value])
 

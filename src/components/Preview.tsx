@@ -1,12 +1,14 @@
-import { forwardRef, memo } from 'react'
+import { forwardRef } from 'react'
 import { useOptimizedMarkdown } from '../hooks/useMarkdown'
+import { AppSettings } from '../types/settings'
 import './Preview.css'
 
 interface PreviewProps {
   content?: string
+  settings: AppSettings
 }
 
-const Preview = memo(forwardRef<HTMLDivElement, PreviewProps>(({ content = '' }, ref) => {
+const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ content = '', settings }, ref) => {
   const processedContent = useOptimizedMarkdown(content, {
     enableGfm: true,
     enableHighlight: true,
@@ -32,6 +34,7 @@ const Preview = memo(forwardRef<HTMLDivElement, PreviewProps>(({ content = '' },
         {processedContent ? (
           <div
             className="markdown-body"
+            data-theme={settings.theme}
             dangerouslySetInnerHTML={{ __html: processedContent }}
           />
         ) : (
@@ -42,7 +45,7 @@ const Preview = memo(forwardRef<HTMLDivElement, PreviewProps>(({ content = '' },
       </div>
     </div>
   )
-}))
+})
 
 Preview.displayName = 'Preview'
 

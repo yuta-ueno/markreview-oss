@@ -8,6 +8,10 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+# Ensure GITHUB_TOKEN has the rights to create releases and upload assets
+permissions:
+  contents: write
+
 jobs:
   create-release:
     runs-on: ubuntu-latest

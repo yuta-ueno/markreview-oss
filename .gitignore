@@ -60,3 +60,16 @@ coverage/
 
 # Local contributor guide (keep out of VCS)
 AGENTS.md
+
+# Local status snapshot (keep out of VCS)
+STATUS.md
+
+# Local helpers and artifacts (do not commit)
+EULA.txt
+test-localStorage.html
+.eslintcache
+.turbo/
+.cache/
+.pnpm-store/
+.claude/
+claude/

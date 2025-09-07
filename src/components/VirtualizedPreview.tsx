@@ -1,5 +1,11 @@
 import React, { forwardRef, memo, useMemo, useRef, useState, useCallback, useEffect } from 'react'
 import DOMPurify from 'dompurify'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkGfm from 'remark-gfm'
+import remarkRehype from 'remark-rehype'
+import rehypeHighlight from 'rehype-highlight'
+import rehypeStringify from 'rehype-stringify'
 import { useOptimizedMarkdown } from '../hooks/useMarkdown'
 import './Preview.css'
 
@@ -27,20 +33,30 @@ const VirtualizedPreview = memo(forwardRef<HTMLDivElement, VirtualizedPreviewPro
   const [scrollTop, setScrollTop] = useState(0)
   const heightsRef = useRef<Map<number, number>>(new Map())
   const [avgHeight, setAvgHeight] = useState(itemHeight)
+  const htmlCacheRef = useRef<Map<number, string>>(new Map())
+  const processorRef = useRef<any>(null)
   
-  // Split content into chunks for virtualization
+  // Split content into paragraph/code blocks for virtualization
   const contentChunks = useMemo(() => {
-    if (!content || content.length < 50000) return []
-    
+    if (!content || content.length < 50000) return [] as string[]
+    const out: string[] = []
     const lines = content.split('\n')
-    const chunkSize = Math.max(50, Math.floor(lines.length / Math.ceil(content.length / 10000)))
-    const chunks: string[] = []
-    
-    for (let i = 0; i < lines.length; i += chunkSize) {
-      chunks.push(lines.slice(i, i + chunkSize).join('\n'))
+    let cur: string[] = []
+    let inFence = false
+    const flush = () => { if (cur.length) { out.push(cur.join('\n')); cur = [] } }
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const fence = line.match(/^(```+|~~~+)/)
+      if (fence) { inFence = !inFence; cur.push(line); continue }
+      if (inFence) { cur.push(line); continue }
+      if (/^\s*$/.test(line)) { flush(); continue }
+      if (/^\s*#{1,6}\s+/.test(line)) { flush(); cur.push(line); flush(); continue }
+      if (/^\s*([-*_])\s*\1\s*\1\s*$/.test(line)) { flush(); out.push(line); flush(); continue }
+      // default: paragraph/list lines accumulate
+      cur.push(line)
     }
-    
-    return chunks
+    flush()
+    return out
   }, [content])
   
   // Helpers for dynamic heights
@@ -92,18 +108,30 @@ const VirtualizedPreview = memo(forwardRef<HTMLDivElement, VirtualizedPreviewPro
     return items
   }, [contentChunks, scrollTop, containerHeight, overscan, getHeight, getEstimatedTop])
   
-  // Process only visible content chunks
+  // Process only visible content blocks (with caching and markdown pipeline)
   const processedChunks = useMemo(() => {
     const processed = new Map<number, string>()
-    
     visibleItems.forEach(item => {
-      // For now, we'll use a simpler approach without the hook in forEach
-      // This will be improved in a future iteration
-      const simpleHtml = `<div class="virtual-chunk">${item.content.replace(/\n/g, '<br>')}</div>`
-      const sanitized = DOMPurify.sanitize(simpleHtml)
-      processed.set(item.index, sanitized)
+      const cached = htmlCacheRef.current.get(item.index)
+      if (cached) { processed.set(item.index, cached); return }
+      if (!processorRef.current) {
+        processorRef.current = unified()
+          .use(remarkParse)
+          .use(remarkGfm)
+          .use(remarkRehype)
+          .use(rehypeHighlight)
+          .use(rehypeStringify)
+      }
+      try {
+        const proc = processorRef.current as any
+        const result = proc.processSync(item.content)
+        const html = DOMPurify.sanitize(String(result))
+        htmlCacheRef.current.set(item.index, html)
+        processed.set(item.index, html)
+      } catch {
+        processed.set(item.index, '<p>Render error</p>')
+      }
     })
-    
     return processed
   }, [visibleItems])
   

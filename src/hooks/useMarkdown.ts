@@ -6,6 +6,7 @@ import remarkRehype from 'remark-rehype'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeStringify from 'rehype-stringify'
 import DOMPurify from 'dompurify'
+import { logger } from '../utils/logger'
 import { APP_CONFIG } from '../utils/constants'
 
 export interface MarkdownProcessingOptions {
@@ -104,7 +105,7 @@ export const useMarkdown = (
     const isLargeContent = content.length > APP_CONFIG.MAX_FILE_SIZE / 2 // 5MB threshold
     
     if (isLargeContent && !enableVirtualization) {
-      console.warn('Large markdown content detected. Consider enabling virtualization for better performance.')
+      logger.warn('Large markdown content detected. Consider enabling virtualization for better performance.')
     }
 
     try {
@@ -127,7 +128,7 @@ export const useMarkdown = (
 
       return htmlString
     } catch (error) {
-      console.error('Markdown processing error:', error)
+      logger.error('Markdown processing error:', error)
       return '<p>Error processing markdown content</p>'
     }
   }, [content, enableGfm, enableHighlight, sanitize, enableVirtualization, chunkSize, purifyConfig])
@@ -168,7 +169,7 @@ export const useOptimizedMarkdown = (
       const contentSizeKB = (content.length / 1024).toFixed(2)
       const throughputKBps = (content.length / 1024 / (processingTime / 1000)).toFixed(2)
       
-      console.log(`Markdown processing performance:`, {
+      logger.debug(`Markdown processing performance:`, {
         processingTime: `${processingTime}ms`,
         contentSize: `${contentSizeKB}KB`,
         throughput: `${throughputKBps}KB/s`,
@@ -179,7 +180,7 @@ export const useOptimizedMarkdown = (
       
       // Warn about potential performance issues
       if (processingTime > 1000) {
-        console.warn('Slow markdown processing detected. Consider enabling virtualization or reducing content size.')
+        logger.warn('Slow markdown processing detected. Consider enabling virtualization or reducing content size.')
       }
     }
   }, [content.length, startTime, enhancedOptions])

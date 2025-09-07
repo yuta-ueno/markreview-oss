@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { tauriLogger } from '../utils/logger'
+import { tauriLogger, logger } from '../utils/logger'
 import { APP_CONFIG } from '../utils/constants'
 
 export interface TauriIntegrationResult {
@@ -74,13 +74,13 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
       // Tauri 2.0: Listen for drag-drop event
       const unlistenDrop = await listen(APP_CONFIG.TAURI_FILE_DROP_EVENT, (event: { payload?: { paths?: string[] } }) => {
         tauriLogger.fileDropReceived(event)
-        console.log('Tauri drag-drop event received:', event)
+        logger.debug('Tauri drag-drop event received:', event)
         showDebugInfo(`📁 Drag & Drop: ${event.payload?.paths?.[0] || 'unknown'}`, 'success')
         
         // Tauri 2.0 event payload structure
         if (event.payload && event.payload.paths && event.payload.paths.length > 0) {
           const filePath = event.payload.paths[0]
-          console.log('Processing dropped file:', filePath)
+          logger.debug('Processing dropped file:', filePath)
           tauriLogger.processingDroppedFile(filePath)
           onFileDropped(filePath)
         }
@@ -88,11 +88,11 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
 
       // Optional: Listen for drag-enter/leave for visual feedback
       const unlistenEnter = await listen(APP_CONFIG.TAURI_DRAG_ENTER_EVENT, (event: unknown) => {
-        console.log('Drag enter:', event)
+        logger.debug('Drag enter:', event)
       })
 
       const unlistenLeave = await listen(APP_CONFIG.TAURI_DRAG_LEAVE_EVENT, (event: unknown) => {
-        console.log('Drag leave:', event)
+        logger.debug('Drag leave:', event)
       })
       
       tauriLogger.fileDropComplete()

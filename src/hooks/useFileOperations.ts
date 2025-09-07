@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { saveAsFile, saveFile, validateFileContent } from '../utils/file'
 import { APP_CONFIG, getFileExtensionFromPath, isValidFileSize } from '../utils/constants'
+import { logger } from '../utils/logger'
 
 export const DEFAULT_CONTENT = `# MarkReview - 操作マニュアル
 
@@ -192,7 +193,7 @@ export const useFileOperations = ({
 
       // Read file using Tauri API
       if (!readTextFile) {
-        console.warn('Tauri file API not available, but file drop functionality is working through alternative path')
+        logger.warn('Tauri file API not available, but file drop functionality is working through alternative path')
         return
       }
       const content = await readTextFile(filePath)

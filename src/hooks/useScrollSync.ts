@@ -1,4 +1,5 @@
 import { useCallback, useRef, useEffect, type RefCallback } from 'react'
+import { logger } from '../utils/logger'
 
 export interface ScrollSyncOptions {
   enabled?: boolean
@@ -19,7 +20,7 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
     const previewScroller = previewRef.current?.querySelector('.preview-content') as HTMLElement
     
     // Debug logging
-    console.log('ScrollSync: Getting elements', {
+    logger.debug('ScrollSync: Getting elements', {
       editorRef: !!editorRef.current,
       previewRef: !!previewRef.current,
       editorScroller: !!editorScroller,
@@ -62,7 +63,7 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
           isScrollingSyncRef.current = true
           const scrollPercentage = getScrollPercentage(sourceElement)
           
-          console.log('ScrollSync: Syncing scroll', {
+          logger.debug('ScrollSync: Syncing scroll', {
             sourceElement: sourceElement.className,
             targetElement: targetElement.className,
             scrollPercentage: scrollPercentage.toFixed(3),
@@ -77,7 +78,7 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
             isScrollingSyncRef.current = false
           }, 50)
         } else {
-          console.log('ScrollSync: Sync skipped', {
+          logger.debug('ScrollSync: Sync skipped', {
             isScrollingSyncRef: isScrollingSyncRef.current,
             enabled
           })
@@ -114,7 +115,7 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
     const setupListeners = () => {
       const { editorScroller, previewScroller } = getScrollElements()
       
-      console.log('ScrollSync: Setting up listeners', {
+      logger.debug('ScrollSync: Setting up listeners', {
         retryCount,
         editorScroller: !!editorScroller,
         previewScroller: !!previewScroller
@@ -125,7 +126,7 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
         editorScroller.addEventListener('scroll', handleEditorScroll, { passive: true })
         previewScroller.addEventListener('scroll', handlePreviewScroll, { passive: true })
         
-        console.log('ScrollSync: Listeners attached successfully')
+        logger.debug('ScrollSync: Listeners attached successfully')
         
         // Return cleanup function
         return () => {
@@ -134,7 +135,7 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
         }
       } else if (retryCount < maxRetries) {
         // Elements not ready, retry after a delay
-        console.log('ScrollSync: Elements not ready, retrying...', {
+        logger.debug('ScrollSync: Elements not ready, retrying...', {
           retryCount,
           willRetryAfter: '100ms'
         })
@@ -149,7 +150,7 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
         
         return () => clearTimeout(timeoutId)
       } else {
-        console.warn('ScrollSync: Max retries reached, could not find scroll elements')
+        logger.warn('ScrollSync: Max retries reached, could not find scroll elements')
         return () => {}
       }
     }
@@ -190,7 +191,7 @@ export const useScrollSync = (options: ScrollSyncOptions = {}) => {
       previewScroller.scrollTop = 0
     }
     
-    console.log('ScrollSync: Reset scroll positions to top', {
+    logger.debug('ScrollSync: Reset scroll positions to top', {
       editorScroller: !!editorScroller,
       previewScroller: !!previewScroller
     })

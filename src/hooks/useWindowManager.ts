@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react'
+import { logger } from '../utils/logger'
 import { WindowSettings } from '../types/settings'
 import { useSettings } from './useSettings'
 
@@ -23,19 +24,19 @@ export const useWindowManager = () => {
         maximized: isMaximized,
       }
 
-      console.log('WindowManager: Saving window settings (size only):', windowSettings)
+      logger.debug('WindowManager: Saving window settings (size only):', windowSettings)
       
       updateSettings({ window: windowSettings })
-      console.log('WindowManager: Window size settings saved successfully')
+      logger.debug('WindowManager: Window size settings saved successfully')
     } catch (error) {
-      console.error('WindowManager: Failed to save window state:', error)
+      logger.error('WindowManager: Failed to save window state:', error)
     }
   }, [updateSettings])
 
   // Restore window state from settings
   const restoreWindowState = useCallback(async () => {
     try {
-      console.log('WindowManager: Restoring window state (size only):', settings.window)
+      logger.debug('WindowManager: Restoring window state (size only):', settings.window)
       
       // Try to import Tauri APIs
       const { getCurrentWindow, PhysicalSize } = await import('@tauri-apps/api/window')
@@ -43,24 +44,24 @@ export const useWindowManager = () => {
       const windowSettings = settings.window
 
       if (windowSettings.maximized) {
-        console.log('WindowManager: Maximizing window')
+        logger.debug('WindowManager: Maximizing window')
         await window.maximize()
       } else {
-        console.log('WindowManager: Setting window size to:', windowSettings.width, 'x', windowSettings.height)
+        logger.debug('WindowManager: Setting window size to:', windowSettings.width, 'x', windowSettings.height)
         
         // Only set size - do not modify position at all
         await window.setSize(new PhysicalSize(windowSettings.width, windowSettings.height))
         
-        console.log('WindowManager: Window size restored successfully')
+        logger.debug('WindowManager: Window size restored successfully')
       }
-      console.log('WindowManager: Window state restoration completed')
+      logger.debug('WindowManager: Window state restoration completed')
       
       // Debug alert disabled to prevent infinite loop
       // if (typeof (globalThis as any).__TAURI__ !== 'undefined') {
       //   alert(`[DEBUG] Window restoration completed successfully`)
       // }
     } catch (error) {
-      console.error('WindowManager: Failed to restore window state:', error)
+      logger.error('WindowManager: Failed to restore window state:', error)
     }
   }, [settings.window])
 
@@ -68,8 +69,8 @@ export const useWindowManager = () => {
   useEffect(() => {
     const setupWindowListeners = async () => {
       try {
-        console.log('WindowManager: Setting up window listeners')
-        console.log('WindowManager: Setting up safe window management')
+        logger.debug('WindowManager: Setting up window listeners')
+        logger.debug('WindowManager: Setting up safe window management')
         const { getCurrentWindow } = await import('@tauri-apps/api/window')
         const window = getCurrentWindow()
         
@@ -79,11 +80,11 @@ export const useWindowManager = () => {
         const debouncedSave = () => {
           // Don't save if we're in the middle of restoring
           if (isRestoring) {
-            console.log('WindowManager: Skipping save during restoration')
+            logger.debug('WindowManager: Skipping save during restoration')
             return
           }
           
-          console.log('WindowManager: Debounced save triggered')
+          logger.debug('WindowManager: Debounced save triggered')
           clearTimeout(debounceTimer)
           debounceTimer = globalThis.setTimeout(() => {
             saveWindowState()
@@ -92,49 +93,49 @@ export const useWindowManager = () => {
         
         // Listen for window events with safe guards
         const unlistenResize = await window.listen('tauri://resize', () => {
-          console.log('WindowManager: Window resize event')
+          logger.debug('WindowManager: Window resize event')
           debouncedSave()
         })
         const unlistenMove = await window.listen('tauri://move', () => {
-          console.log('WindowManager: Window move event')
+          logger.debug('WindowManager: Window move event')
           debouncedSave()
         })
         const unlistenMaximize = await window.listen('tauri://maximize', () => {
-          console.log('WindowManager: Window maximize event')
+          logger.debug('WindowManager: Window maximize event')
           if (!isRestoring) {
             saveWindowState()
           }
         })
         const unlistenUnmaximize = await window.listen('tauri://unmaximize', () => {
-          console.log('WindowManager: Window unmaximize event')
+          logger.debug('WindowManager: Window unmaximize event')
           if (!isRestoring) {
             saveWindowState()
           }
         })
 
-        console.log('WindowManager: Event listeners set up, restoring window state')
+        logger.debug('WindowManager: Event listeners set up, restoring window state')
         
         // Safely restore window state after setup
         setTimeout(async () => {
-          console.log('WindowManager: Starting safe window restoration')
+          logger.debug('WindowManager: Starting safe window restoration')
           isRestoring = true
           try {
             await restoreWindowState()
-            console.log('WindowManager: Window restoration completed')
+            logger.debug('WindowManager: Window restoration completed')
           } catch (error) {
             console.error('WindowManager: Window restoration failed:', error)
           } finally {
             // Wait a bit before enabling saving to prevent immediate save triggers
             setTimeout(() => {
               isRestoring = false
-              console.log('WindowManager: Window management fully enabled')
+              logger.debug('WindowManager: Window management fully enabled')
             }, 3000)
           }
         }, 500)
 
         // Cleanup listeners
         return () => {
-          console.log('WindowManager: Cleaning up listeners')
+          logger.debug('WindowManager: Cleaning up listeners')
           clearTimeout(debounceTimer)
           unlistenResize()
           unlistenMove()
@@ -142,7 +143,7 @@ export const useWindowManager = () => {
           unlistenUnmaximize()
         }
       } catch (error) {
-        console.error('WindowManager: Failed to set up listeners:', error)
+        logger.error('WindowManager: Failed to set up listeners:', error)
       }
     }
 

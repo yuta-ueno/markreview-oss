@@ -15,13 +15,13 @@ import { useToast } from './hooks/useToast'
 import { useFileOperations, DEFAULT_CONTENT } from './hooks/useFileOperations'
 import { useTauriIntegration } from './hooks/useTauriIntegration'
 import { useWindowManager } from './hooks/useWindowManager'
-import { themeLogger } from './utils/logger'
+import { themeLogger, logger } from './utils/logger'
 import { APP_CONFIG } from './utils/constants'
 import './App.css'
 
 function App() {
   // Simplified debugging - remove alert dependencies
-  console.log('React App Console Log - App started')
+  logger.log('React App Console Log - App started')
   
   
   const [markdownContent, setMarkdownContent] = useState(DEFAULT_CONTENT)
@@ -45,7 +45,7 @@ function App() {
 
   // Content change handler for file operations
   const handleContentChange = useCallback((content: string, filename: string, filePath: string | null, hasChanges: boolean) => {
-    console.log('Content change:', { filename, filePath, contentLength: content.length, hasChanges })
+    logger.log('Content change:', { filename, filePath, contentLength: content.length, hasChanges })
     setMarkdownContent(content)
     setOriginalContent(hasChanges ? originalContent : content)
     setFilename(filename)
@@ -67,12 +67,12 @@ function App() {
         if (statusDiv.parentNode) statusDiv.parentNode.removeChild(statusDiv)
       }, 3000)
     }
-  }, [originalContent, resetScrollPositions])
+  }, [originalContent, resetScrollPositions, info])
 
   // Tauri integration with file drop support
   const { isTauri, readTextFile } = useTauriIntegration({
     onFileDropped: async (filePath: string) => {
-      console.log('File dropped via Tauri:', filePath)
+      logger.log('File dropped via Tauri:', filePath)
       // This will be handled by the file operations hook
       await handleTauriFileDrop(filePath)
     }

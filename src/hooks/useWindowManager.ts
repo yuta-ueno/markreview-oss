@@ -123,7 +123,7 @@ export const useWindowManager = () => {
             await restoreWindowState()
             logger.debug('WindowManager: Window restoration completed')
           } catch (error) {
-            console.error('WindowManager: Window restoration failed:', error)
+            logger.error('WindowManager: Window restoration failed:', error)
           } finally {
             // Wait a bit before enabling saving to prevent immediate save triggers
             setTimeout(() => {

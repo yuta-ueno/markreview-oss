@@ -202,7 +202,7 @@ export const useFileOperations = ({
       onContentChange(content, fileName, filePath, false)
       onSuccess(APP_CONFIG.SUCCESS_MESSAGES.FILE_OPENED(fileName))
     } catch (err) {
-      console.error('Error reading dropped file:', err)
+      logger.error('Error reading dropped file:', err)
       onError(`Failed to read file: ${err}`)
     }
   }, [onError, onSuccess, readTextFile, onContentChange])

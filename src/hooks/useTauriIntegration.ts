@@ -125,7 +125,7 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
       logger.debug('Available APP_CONFIG.TAURI_FILE_ARGS_EVENT:', APP_CONFIG.TAURI_FILE_ARGS_EVENT)
       
       const unlisten = await listen(APP_CONFIG.TAURI_FILE_ARGS_EVENT, (event: { payload?: unknown }) => {
-        console.log('✅✅✅ TAURI 2.0 FILE ARGS EVENT RECEIVED ✅✅✅:', event)
+        logger.debug('TAURI 2.0 FILE ARGS EVENT RECEIVED:', event)
         logger.debug('Event payload type:', typeof event.payload)
         logger.debug('Event payload value:', event.payload)
         
@@ -220,3 +220,4 @@ export const useTauriIntegration = ({ onFileDropped }: UseTauriIntegrationOption
     readTextFile,
   }
 }
+

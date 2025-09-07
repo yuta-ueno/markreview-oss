@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react'
+import { logger } from '../utils/logger'
 import { ToastMessage } from '../components/Toast'
 
 interface UseToastOptions {
@@ -92,7 +93,7 @@ export const handleFileError = (
   operation: 'open' | 'save' | 'create' | 'load',
   showToast: (message: string, duration?: number) => void
 ) => {
-  console.error(`File ${operation} error:`, error)
+  logger.error(`File ${operation} error:`, error)
 
   let message = `Failed to ${operation} file`
   
@@ -123,7 +124,7 @@ export const handleGeneralError = (
   context: string,
   showToast: (message: string, duration?: number) => void
 ) => {
-  console.error(`${context} error:`, error)
+  logger.error(`${context} error:`, error)
 
   let message = `An error occurred in ${context}`
   

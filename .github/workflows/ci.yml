@@ -66,7 +66,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, macos-latest, ubuntu-20.04]
+        platform: [windows-latest, macos-latest]
         
     steps:
     - uses: actions/checkout@v4
@@ -85,12 +85,7 @@ jobs:
       with:
         workspaces: './src-tauri -> target'
     
-    - name: Install dependencies (Ubuntu only)
-      if: matrix.platform == 'ubuntu-20.04'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
-        npm ci
+    # Linux build disabled for now
     
     - name: Install dependencies (macOS only)
       if: matrix.platform == 'macos-latest'
@@ -121,12 +116,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAURI_BUNDLE_TARGETS: dmg
 
-    - name: Build Tauri application (Linux)
-      if: matrix.platform == 'ubuntu-20.04'
-      run: npm run tauri build
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAURI_BUNDLE_TARGETS: deb,appimage
+    # Linux build disabled for now
     
     - name: Upload Tauri artifacts (Windows)
       if: matrix.platform == 'windows-latest'
@@ -146,14 +136,7 @@ jobs:
           src-tauri/target/release/bundle/dmg/*.dmg
           src-tauri/target/release/bundle/macos/*.app
     
-    - name: Upload Tauri artifacts (Linux)
-      if: matrix.platform == 'ubuntu-20.04'
-      uses: actions/upload-artifact@v4
-      with:
-        name: tauri-linux
-        path: |
-          src-tauri/target/release/bundle/deb/*.deb
-          src-tauri/target/release/bundle/appimage/*.AppImage
+    # Linux artifact upload disabled for now
 
   security-audit:
     runs-on: ubuntu-latest

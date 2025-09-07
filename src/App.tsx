@@ -55,8 +55,6 @@ function App() {
     // Reset scroll positions when new content is loaded (not for unsaved changes)
     if (!hasChanges) {
       resetScrollPositions()
-      // Use toast/info instead of direct DOM manipulation
-      info(`FILE: ${filename}`)
     }
     
     // DOM-based feedback for file loading
@@ -67,7 +65,7 @@ function App() {
         if (statusDiv.parentNode) statusDiv.parentNode.removeChild(statusDiv)
       }, 3000)
     }
-  }, [originalContent, resetScrollPositions, info])
+  }, [originalContent, resetScrollPositions])
 
   // Tauri integration with file drop support
   const { isTauri, readTextFile } = useTauriIntegration({

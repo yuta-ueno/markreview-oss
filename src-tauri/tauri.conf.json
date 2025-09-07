@@ -25,7 +25,7 @@
     "macOSPrivateApi": true,
     "withGlobalTauri": true,
     "security": {
-      "csp": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: ipc: http://ipc.localhost; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost https://ipc.localhost;",
+      "csp": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: ipc:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc:;",
       "capabilities": ["main-capability"]
     }
   },

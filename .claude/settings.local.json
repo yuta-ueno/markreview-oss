@@ -87,9 +87,29 @@
       "Bash(\"./src-tauri/target/release/markreview.exe\" \"test-file.md\")",
       "Bash(reg query:*)",
       "mcp__serena__delete_memory",
-      "Bash(/bashes)"
+      "Bash(/bashes)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --limit 5)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run view 17493493230)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue list --limit 10)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue view 1)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue view 2)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue view 3)",
+      "Bash(del \"src\\assets\\sample.md\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --limit 3)",
+      "Bash(rustup target:*)",
+      "Bash(npm run tauri:*)",
+      "Bash(./src-tauri/target/release/markreview.exe)",
+      "Bash(ls:*)",
+      "Bash(echo:*)",
+      "Read(//c/Users/yuta/.claude/**)",
+      "Bash(where node)",
+      "Bash(del \"new_color.css\")"
     ],
     "deny": [],
     "ask": []
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node C:\\Users\\yuta\\.claude\\statusline.js"
   }
 }

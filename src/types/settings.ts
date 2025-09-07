@@ -1,32 +1,29 @@
-export type ThemeMode = 'solarized-light' | 'solarized-dark' | 'auto'
+export type ThemeMode = 'github-light' | 'github-dark' | 'solarized-light' | 'solarized-dark' | 'nord' | 'monokai' | 'auto'
 
 export interface EditorSettings {
   fontSize: number
   fontFamily: string
   tabSize: number
   wordWrap: boolean
-  lineNumbers: boolean
-  minimap: boolean
 }
 
 export interface PreviewSettings {
-  maxWidth: number | 'full'
   syncScroll: boolean
-  showLineNumbers: boolean
-  highlightCurrentLine: boolean
 }
 
-export interface ExportSettings {
-  includeCSS: boolean
-  includeTitle: boolean
-  exportFormat: 'html' | 'pdf'
+export interface WindowSettings {
+  width: number
+  height: number
+  x?: number
+  y?: number
+  maximized: boolean
 }
 
 export interface AppSettings {
   theme: ThemeMode
   editor: EditorSettings
   preview: PreviewSettings
-  export: ExportSettings
+  window: WindowSettings
   shortcuts: Record<string, string>
 }
 
@@ -37,19 +34,14 @@ export const DEFAULT_SETTINGS: AppSettings = {
     fontFamily: 'Monaco, Menlo, Ubuntu Mono, Consolas, monospace',
     tabSize: 2,
     wordWrap: true,
-    lineNumbers: true,
-    minimap: false,
   },
   preview: {
-    maxWidth: 'full',
     syncScroll: true,
-    showLineNumbers: false,
-    highlightCurrentLine: false,
   },
-  export: {
-    includeCSS: true,
-    includeTitle: true,
-    exportFormat: 'html',
+  window: {
+    width: 1200,
+    height: 800,
+    maximized: false,
   },
   shortcuts: {
     'new': 'Ctrl+N',
@@ -63,4 +55,4 @@ export const DEFAULT_SETTINGS: AppSettings = {
 export type SettingsKey = keyof AppSettings
 export type EditorSettingsKey = keyof EditorSettings
 export type PreviewSettingsKey = keyof PreviewSettings
-export type ExportSettingsKey = keyof ExportSettings
+export type WindowSettingsKey = keyof WindowSettings

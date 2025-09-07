@@ -39,6 +39,12 @@
   background-color: var(--bg-tertiary);
 }
 
+/* Toggle state styling */
+.toolbar-button[aria-pressed="true"] {
+  background-color: var(--bg-tertiary);
+  border-color: var(--accent-color);
+}
+
 .toolbar-icon {
   font-size: 14px;
 }
@@ -94,4 +100,72 @@
     max-width: none;
     text-align: center;
   }
+}
+
+/* Toggle (Preview Only) */
+.toolbar-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 4px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  border-radius: 12px;
+}
+
+.switch-slider::before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  top: 2px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px var(--shadow-color);
+}
+
+.toggle-switch input:checked + .switch-slider {
+  background-color: color-mix(in oklab, var(--accent-color) 25%, var(--bg-tertiary));
+  border-color: var(--accent-color);
+}
+
+.toggle-switch input:checked + .switch-slider::before {
+  transform: translateX(18px);
+}
+
+.toggle-switch input:focus-visible + .switch-slider {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.toggle-label {
+  font-size: 13px;
+  color: var(--text-color);
+  user-select: none;
 }

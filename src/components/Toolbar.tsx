@@ -1,4 +1,5 @@
 import React, { useRef } from 'react'
+import { FilePlus, FolderOpen, Save as SaveIcon, Settings as SettingsIcon } from 'lucide-react'
 import './Toolbar.css'
 
 interface ToolbarProps {
@@ -6,6 +7,8 @@ interface ToolbarProps {
   onOpen: (content: string, filename: string) => void
   onSave: () => void
   onSettings?: () => void
+  onToggleViewMode?: () => void
+  viewMode?: 'split' | 'preview'
   content: string
   filename: string
   hasUnsavedChanges?: boolean
@@ -16,6 +19,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
   onOpen,
   onSave,
   onSettings,
+  onToggleViewMode,
+  viewMode = 'split',
   content: _content,
   filename,
   hasUnsavedChanges = false,
@@ -72,7 +77,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           onClick={handleNew}
           title="New document (Ctrl+N)"
         >
-          <span className="toolbar-icon">📄</span>
+          <FilePlus size={16} strokeWidth={2} className="toolbar-icon" />
           New
         </button>
         
@@ -81,7 +86,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           onClick={handleOpenClick}
           title="Open file (Ctrl+O)"
         >
-          <span className="toolbar-icon">📁</span>
+          <FolderOpen size={16} strokeWidth={2} className="toolbar-icon" />
           Open
         </button>
         
@@ -90,7 +95,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           onClick={handleSave}
           title="Save document (Ctrl+S)"
         >
-          <span className="toolbar-icon">💾</span>
+          <SaveIcon size={16} strokeWidth={2} className="toolbar-icon" />
           Save
           {hasUnsavedChanges && <span className="unsaved-indicator">*</span>}
         </button>
@@ -103,9 +108,25 @@ const Toolbar: React.FC<ToolbarProps> = ({
             onClick={onSettings}
             title="Settings (Ctrl+,)"
           >
-            <span className="toolbar-icon">⚙️</span>
+            <SettingsIcon size={16} strokeWidth={2} className="toolbar-icon" />
             Settings
           </button>
+        )}
+
+        {onToggleViewMode && (
+          <div className="toolbar-toggle">
+            <label className="toggle-switch" title="Preview Only (Ctrl+Shift+P)">
+              <input
+                type="checkbox"
+                role="switch"
+                aria-label="Preview Only"
+                checked={viewMode === 'preview'}
+                onChange={onToggleViewMode}
+              />
+              <span className="switch-slider" aria-hidden="true" />
+            </label>
+            <span className="toggle-label">Preview Only</span>
+          </div>
         )}
       </div>
 

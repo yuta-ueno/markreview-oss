@@ -160,6 +160,10 @@ function App() {
       // CodeMirror will handle Ctrl+F internally
       info('Use Ctrl+F to search within the editor')
     },
+    onTogglePreview: () => {
+      const next = settings.viewMode === 'preview' ? 'split' : 'preview'
+      updateSettings({ viewMode: next })
+    },
     onToggleSettings: () => setIsSettingsOpen(true),
   }, settings)
 
@@ -191,7 +195,7 @@ function App() {
       componentName="App"
       showToast={showToast}
     >
-      <div className="app" {...dragAndDropProps}>
+      <div className={`app ${settings.viewMode === 'preview' ? 'app--preview-only' : ''}`} {...dragAndDropProps}>
         {isDragging && (
           <div className="drag-overlay">
             <div className="drag-message">
@@ -217,6 +221,8 @@ function App() {
             onOpen={handleOpen}
             onSave={handleSave}
             onSettings={() => setIsSettingsOpen(true)}
+            onToggleViewMode={() => updateSettings({ viewMode: settings.viewMode === 'preview' ? 'split' : 'preview' })}
+            viewMode={settings.viewMode}
             content={markdownContent}
             filename={filename}
             hasUnsavedChanges={hasUnsavedChanges}
@@ -224,41 +230,54 @@ function App() {
         </ErrorBoundary>
         
         <div className="app-content">
-          <ErrorBoundary 
-            componentName="SplitPane"
-            showToast={showToast}
-          >
-            <SplitPane
-              left={
-                <ErrorBoundary 
-                  componentName="Preview"
-                  showToast={showToast}
-                >
-                  <Preview
-                    content={debouncedContent}
-                    settings={settings}
-                    ref={previewRefCombined}
-                  />
-                </ErrorBoundary>
-              }
-              right={
-                <ErrorBoundary 
-                  componentName="Editor"
-                  showToast={showToast}
-                >
-                  <Editor
-                    value={markdownContent}
-                    onChange={handleEditorContentChange}
-                    placeholder={APP_CONFIG.PLACEHOLDERS.EDITOR}
-                    settings={settings}
-                    ref={editorRefCombined}
-                  />
-                </ErrorBoundary>
-              }
-              defaultSplit={APP_CONFIG.DEFAULT_SPLIT_RATIO}
-              minSize={APP_CONFIG.MIN_PANE_SIZE}
-            />
-          </ErrorBoundary>
+          {settings.viewMode === 'split' ? (
+            <ErrorBoundary 
+              componentName="SplitPane"
+              showToast={showToast}
+            >
+              <SplitPane
+                left={
+                  <ErrorBoundary 
+                    componentName="Preview"
+                    showToast={showToast}
+                  >
+                    <Preview
+                      content={debouncedContent}
+                      settings={settings}
+                      ref={previewRefCombined}
+                    />
+                  </ErrorBoundary>
+                }
+                right={
+                  <ErrorBoundary 
+                    componentName="Editor"
+                    showToast={showToast}
+                  >
+                    <Editor
+                      value={markdownContent}
+                      onChange={handleEditorContentChange}
+                      placeholder={APP_CONFIG.PLACEHOLDERS.EDITOR}
+                      settings={settings}
+                      ref={editorRefCombined}
+                    />
+                  </ErrorBoundary>
+                }
+                defaultSplit={APP_CONFIG.DEFAULT_SPLIT_RATIO}
+                minSize={APP_CONFIG.MIN_PANE_SIZE}
+              />
+            </ErrorBoundary>
+          ) : (
+            <ErrorBoundary 
+              componentName="Preview"
+              showToast={showToast}
+            >
+              <Preview
+                content={debouncedContent}
+                settings={settings}
+                ref={previewRefCombined}
+              />
+            </ErrorBoundary>
+          )}
         </div>
 
         <ErrorBoundary 

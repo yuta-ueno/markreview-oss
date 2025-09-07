@@ -19,12 +19,15 @@ export interface WindowSettings {
   maximized: boolean
 }
 
+export type ViewMode = 'split' | 'preview'
+
 export interface AppSettings {
   theme: ThemeMode
   editor: EditorSettings
   preview: PreviewSettings
   window: WindowSettings
   shortcuts: Record<string, string>
+  viewMode: ViewMode
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -50,6 +53,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     'find': 'Ctrl+F',
     'settings': 'Ctrl+,',
   },
+  viewMode: 'split',
 }
 
 export type SettingsKey = keyof AppSettings

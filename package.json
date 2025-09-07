@@ -1,6 +1,6 @@
 {
   "name": "markreview",
-  "version": "0.1.11",
+  "version": "0.2.0",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -43,6 +43,7 @@
     "codemirror": "^6.0.2",
     "dompurify": "^3.2.6",
     "highlight.js": "^11.11.1",
+    "lucide-react": "^0.471.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-markdown": "^10.1.0",

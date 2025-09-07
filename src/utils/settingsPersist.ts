@@ -13,6 +13,10 @@ export const validateSettings = (settings: unknown): AppSettings => {
       s.theme && ['github-light', 'github-dark', 'solarized-light', 'solarized-dark', 'nord', 'monokai', 'auto'].includes(s.theme)
         ? s.theme
         : DEFAULT_SETTINGS.theme,
+    viewMode:
+      s && typeof (s as any).viewMode === 'string' && ['split', 'preview'].includes((s as any).viewMode as string)
+        ? ((s as any).viewMode as AppSettings['viewMode'])
+        : DEFAULT_SETTINGS.viewMode,
     editor: {
       fontSize: typeof s.editor?.fontSize === 'number' && s.editor.fontSize >= 8 && s.editor.fontSize <= 32 ? s.editor.fontSize : DEFAULT_SETTINGS.editor.fontSize,
       fontFamily: typeof s.editor?.fontFamily === 'string' && s.editor.fontFamily.trim() ? s.editor.fontFamily : DEFAULT_SETTINGS.editor.fontFamily,
@@ -124,4 +128,3 @@ export const saveSettings = async (settings: AppSettings): Promise<void> => {
     saveToLocalStorage(settings)
   }
 }
-

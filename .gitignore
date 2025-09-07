@@ -60,3 +60,6 @@ coverage/
 
 # Local contributor guide (keep out of VCS)
 AGENTS.md
+
+# Local status snapshot (keep out of VCS)
+STATUS.md

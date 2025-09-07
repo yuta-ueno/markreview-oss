@@ -1,0 +1,10 @@
+* text=auto eol=lf
+
+# Keep images/binaries untouched
+*.png -text
+*.jpg -text
+*.ico -text
+*.icns -text
+*.exe -text
+*.msi -text
+

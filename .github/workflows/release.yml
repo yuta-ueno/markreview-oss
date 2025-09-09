@@ -107,7 +107,7 @@ jobs:
         if (-not $file) { Write-Error "NSIS installer not found"; exit 1 }
         ("NSIS_PATH=$file") | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         ("NSIS_NAME=" + (Split-Path $file -Leaf)) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-    
+
     - name: Upload Windows NSIS
       if: matrix.platform == 'windows-latest'
       uses: actions/upload-release-asset@v1
@@ -117,6 +117,26 @@ jobs:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
         asset_path: ${{ env.NSIS_PATH }}
         asset_name: ${{ env.NSIS_NAME }}
+        asset_content_type: application/octet-stream
+
+    - name: Resolve Windows MSI artifact
+      if: matrix.platform == 'windows-latest'
+      shell: pwsh
+      run: |
+        $file = Get-ChildItem -Path "src-tauri/target/release/bundle/msi" -Filter *.msi -Recurse | Select-Object -ExpandProperty FullName -First 1
+        if (-not $file) { Write-Error "MSI not found"; exit 1 }
+        ("MSI_PATH=$file") | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        ("MSI_NAME=" + (Split-Path $file -Leaf)) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+    - name: Upload Windows MSI
+      if: matrix.platform == 'windows-latest'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ${{ env.MSI_PATH }}
+        asset_name: ${{ env.MSI_NAME }}
         asset_content_type: application/octet-stream
     
     - name: Resolve macOS DMG artifact

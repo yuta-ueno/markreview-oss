@@ -64,6 +64,9 @@ REFACTORING_ANALYSIS.md
 RELEASE_NOTES_0.1.7.md
 RELEASE_NOTES_0.1.8.md
 
+# Merged local status (keep out of VCS)
+PROJECT_STATUS.md
+
 # Local status snapshot (keep out of VCS)
 STATUS.md
 

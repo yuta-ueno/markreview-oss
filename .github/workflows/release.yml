@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, macos-latest]
+        platform: [windows-latest, macos-latest, ubuntu-20.04]
         
     steps:
     - uses: actions/checkout@v4
@@ -92,7 +92,12 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAURI_BUNDLE_TARGETS: dmg
 
-    # Linux build disabled for release
+    - name: Build Tauri application (Linux)
+      if: matrix.platform == 'ubuntu-20.04'
+      run: npm run tauri build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAURI_BUNDLE_TARGETS: appimage,deb
     
     - name: Resolve Windows NSIS artifact
       if: matrix.platform == 'windows-latest'
@@ -134,6 +139,42 @@ jobs:
         asset_name: ${{ env.DMG_NAME }}
         asset_content_type: application/octet-stream
     
-    # Linux DEB upload disabled for release
-    
-    # Linux AppImage upload disabled for release
+    - name: Resolve Linux DEB artifact
+      if: matrix.platform == 'ubuntu-20.04'
+      shell: bash
+      run: |
+        file=$(ls -1 src-tauri/target/release/bundle/deb/*.deb | head -n 1)
+        if [[ -z "$file" ]]; then echo "DEB not found"; exit 1; fi
+        echo "DEB_PATH=$file" >> $GITHUB_ENV
+        echo "DEB_NAME=$(basename "$file")" >> $GITHUB_ENV
+
+    - name: Upload Linux DEB
+      if: matrix.platform == 'ubuntu-20.04'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ${{ env.DEB_PATH }}
+        asset_name: ${{ env.DEB_NAME }}
+        asset_content_type: application/vnd.debian.binary-package
+
+    - name: Resolve Linux AppImage artifact
+      if: matrix.platform == 'ubuntu-20.04'
+      shell: bash
+      run: |
+        file=$(ls -1 src-tauri/target/release/bundle/appimage/*.AppImage | head -n 1)
+        if [[ -z "$file" ]]; then echo "AppImage not found"; exit 1; fi
+        echo "APPIMAGE_PATH=$file" >> $GITHUB_ENV
+        echo "APPIMAGE_NAME=$(basename "$file")" >> $GITHUB_ENV
+
+    - name: Upload Linux AppImage
+      if: matrix.platform == 'ubuntu-20.04'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ${{ env.APPIMAGE_PATH }}
+        asset_name: ${{ env.APPIMAGE_NAME }}
+        asset_content_type: application/octet-stream

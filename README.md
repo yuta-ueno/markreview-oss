@@ -26,12 +26,10 @@ A lightweight, cross‑platform desktop application built with Tauri 2 + React f
 
 - Latest release: https://github.com/yuta-ueno/markreview/releases/latest
 
-Platform assets for v0.2.0:
-- Windows (MSI): https://github.com/yuta-ueno/markreview/releases/download/v0.2.0/MarkReview_0.2.0_x64_en-US.msi
-- Windows (NSIS): https://github.com/yuta-ueno/markreview/releases/download/v0.2.0/MarkReview_0.2.0_x64-setup.exe
-
-Notes:
-- Linux artifacts are currently not published to reduce CI queue time. They will return in a future release.
+Platform assets for v0.2.1:
+- Windows (MSI): https://github.com/yuta-ueno/markreview/releases/download/v0.2.1/MarkReview_0.2.1_x64_en-US.msi
+- Windows (NSIS): https://github.com/yuta-ueno/markreview/releases/download/v0.2.1/MarkReview_0.2.1_x64-setup.exe
+- Linux: AppImage / DEB are now published under the release assets.
 
 ### Build from Source
 

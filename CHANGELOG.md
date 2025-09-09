@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.1 (2025-09-09)
+
+### Fixes
+- editor: Fix caret position shifting right by one character in CodeMirror by removing `.cm-scroller` padding/gutter.
+
+### CI/CD
+- ci: Re-enable Linux builds in CI (Ubuntu) and release pipeline; publish AppImage and DEB artifacts.
+
+### Docs
+- readme: Update platform download links to v0.2.1 and note Linux artifacts availability.
+
 ## 0.2.0 (2025-09-07)
 
 ### Features
@@ -15,4 +26,3 @@
 
 ### Build
 - Verified web and Tauri desktop builds.
-

@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release/update (e.g., v0.2.1)'
+        required: true
+        type: string
 
 env:
   CARGO_TERM_COLOR: always
@@ -14,19 +20,37 @@ permissions:
 
 jobs:
   create-release:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     outputs:
       release_id: ${{ steps.create-release.outputs.id }}
       upload_url: ${{ steps.create-release.outputs.upload_url }}
     steps:
+    - name: Extract version from tag
+      id: vars
+      shell: bash
+      run: |
+        TAG="${GITHUB_REF#refs/tags/}"
+        VER="${TAG#v}"
+        echo "TAG=$TAG" >> $GITHUB_ENV
+        echo "VER=$VER" >> $GITHUB_ENV
+
+    - name: Extract changelog section
+      id: changelog
+      shell: bash
+      run: |
+        node .github/scripts/extract-changelog.cjs "$VER" > RELEASE_BODY.md
+        echo "body_path=RELEASE_BODY.md" >> $GITHUB_OUTPUT
+
     - name: Create Release
       id: create-release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: MarkReview ${{ github.ref }}
+        tag_name: ${{ env.TAG }}
+        release_name: MarkReview ${{ env.TAG }}
+        body_path: ${{ steps.changelog.outputs.body_path }}
         draft: false
         prerelease: false
 
@@ -198,3 +222,42 @@ jobs:
         asset_path: ${{ env.APPIMAGE_PATH }}
         asset_name: ${{ env.APPIMAGE_NAME }}
         asset_content_type: application/octet-stream
+
+  update-notes-only:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Extract version from input tag
+      id: vars
+      shell: bash
+      run: |
+        TAG="${{ inputs.tag }}"
+        VER="${TAG#v}"
+        echo "TAG=$TAG" >> $GITHUB_ENV
+        echo "VER=$VER" >> $GITHUB_ENV
+
+    - name: Extract changelog section
+      id: changelog
+      shell: bash
+      run: |
+        node .github/scripts/extract-changelog.cjs "$VER" > RELEASE_BODY.md
+
+    - name: Update release notes
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const body = fs.readFileSync('RELEASE_BODY.md', 'utf8');
+          const { data: rel } = await github.rest.repos.getReleaseByTag({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            tag: process.env.TAG,
+          });
+          await github.rest.repos.updateRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            release_id: rel.id,
+            body,
+          });

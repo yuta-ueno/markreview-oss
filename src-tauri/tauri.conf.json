@@ -59,6 +59,8 @@
         "rank": "Alternate"
       }
     ],
-    "licenseFile": "../EULA.txt"
+    "resources": [
+      "../LICENSE"
+    ]
   }
 }

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { AppSettings, ThemeMode } from '../types/settings'
 import ShortcutEditor from './ShortcutEditor'
 import './SettingsPanel.css'
-import { isProBuild } from '../pro/utils/proFlags'
+import { isProBuild } from '../utils/proFlags'
 
 interface SettingsPanelProps {
   isOpen: boolean

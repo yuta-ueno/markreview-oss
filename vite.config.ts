@@ -4,6 +4,10 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // OSS policy: never enable Pro in this repository
+  define: {
+    'import.meta.env.MARKREVIEW_PRO': JSON.stringify(false),
+  },
   // Tauri expects a fixed port, failover to available one
   server: {
     port: 5173,

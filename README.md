@@ -6,6 +6,11 @@
 
 A lightweight, cross‑platform desktop application built with Tauri 2 + React for working with Markdown in a workflow of view first (Preview) and edit as needed (Editor).
 
+> Note (OSS Edition): This repository builds the OSS edition only.
+> Pro builds are intentionally disabled here. The `:pro` npm scripts
+> will error, and the build flag `import.meta.env.MARKREVIEW_PRO`
+> is forced to `false` in this repo.
+
 ## Features
 
 - Split‑pane layout: left Preview (primary), right Editor (auxiliary)
@@ -14,7 +19,7 @@ A lightweight, cross‑platform desktop application built with Tauri 2 + React f
 - Syntax highlighting (rehype-highlight)
 - File operations: New / Open / Save via native dialogs (Tauri) or download (web)
 - Drag & Drop: drop `.md`, `.markdown`, `.txt`
-- Themes: github‑light/dark, solarized‑light/dark, nord, monokai, and auto (follows system)
+- Themes: GitHub Light/Dark + Auto (core). Solarized Light/Dark, Nord, Monokai are Pro-only.
 - Editor customization: font size/family, tab size, word wrap (CodeMirror 6)
 - Scroll sync: preview follows editor position
 - Large files optimized: chunked processing + optional virtualization for big inputs

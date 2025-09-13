@@ -83,3 +83,7 @@ claude/
 # Local-only organization areas
 docs/
 sandbox/
+src/pro/
+
+# Release drafting artifacts
+RELEASE_BODY.md

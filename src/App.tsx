@@ -3,6 +3,7 @@ import SplitPane from './components/SplitPane'
 import Preview from './components/Preview'
 import Editor from './components/Editor'
 import Toolbar from './components/Toolbar'
+import useFileWatcher from './hooks/useFileWatcher'
 import SettingsPanel from './components/SettingsPanel'
 import ErrorBoundary from './components/ErrorBoundary'
 import { ToastContainer } from './components/Toast'
@@ -16,6 +17,7 @@ import { useFileOperations, DEFAULT_CONTENT } from './hooks/useFileOperations'
 import { useTauriIntegration } from './hooks/useTauriIntegration'
 import { useWindowManager } from './hooks/useWindowManager'
 import { themeLogger, logger } from './utils/logger'
+import { saveSettings as persistSaveSettings } from './utils/settingsPersist'
 import { APP_CONFIG } from './utils/constants'
 import './App.css'
 
@@ -30,9 +32,15 @@ function App() {
   const [originalContent, setOriginalContent] = useState(DEFAULT_CONTENT)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [autoReloadEnabled, setAutoReloadEnabled] = useState(false)
 
   // Initialize settings and toast
   const { settings, updateSettings, resetSettings } = useSettings()
+  // Keep latest settings for exit-time save
+  const latestSettingsRef = useRef(settings)
+  useEffect(() => {
+    latestSettingsRef.current = settings
+  }, [settings])
   // Initialize window manager for size persistence
   useWindowManager()
   const { toasts, removeToast, showToast, success, error, info } = useToast()
@@ -140,6 +148,87 @@ function App() {
     onContentChange: handleContentChange,
   })
 
+  // Ensure settings are persisted on app exit (Tauri + Web fallback)
+  useEffect(() => {
+    let unlistenClose: (() => void) | undefined
+    ;(async () => {
+      try {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window')
+        const appWindow = getCurrentWindow()
+        // Tauri 2: close-requested allows async work before closing
+        unlistenClose = await appWindow.onCloseRequested(async (event) => {
+          try {
+            // Prevent immediate close until we flush settings (API provides preventDefault)
+            // Use optional chaining to be defensive across environments
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ;(event as any)?.preventDefault?.()
+          } catch {}
+          try {
+            await persistSaveSettings(latestSettingsRef.current)
+          } catch (e) {
+            logger.error('Exit save failed (Tauri):', e)
+          }
+          try {
+            await appWindow.close()
+          } catch {}
+        })
+      } catch {
+        // Not running in Tauri; fall back to beforeunload
+      }
+    })()
+
+    const onBeforeUnload = () => {
+      // Best-effort save; browsers may not await this promise
+      void persistSaveSettings(latestSettingsRef.current)
+    }
+    window.addEventListener('beforeunload', onBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload)
+      try { unlistenClose?.() } catch {}
+    }
+  }, [])
+
+  // Reload the currently opened file from disk while preserving scroll
+  const reloadFromDisk = useCallback(async () => {
+    if (!isTauri || !currentFilePath || !readTextFile) return
+
+    const preservePreviewScroll = previewEl?.scrollTop ?? 0
+    const preserveEditorScroll = editorEl?.scrollTop ?? 0
+
+    try {
+      const fresh = await readTextFile(currentFilePath)
+
+      // Skip state updates if content is unchanged
+      if (fresh === markdownContent) return
+
+      // Apply content without resetting scroll or showing toasts
+      setMarkdownContent(fresh)
+      setOriginalContent(fresh)
+      setHasUnsavedChanges(false)
+
+      // Restore scroll positions on next frame to avoid flicker
+      requestAnimationFrame(() => {
+        if (previewEl) previewEl.scrollTop = preservePreviewScroll
+        if (editorEl) editorEl.scrollTop = preserveEditorScroll
+      })
+    } catch (e) {
+      logger.error('Failed to reload file from disk', e)
+    }
+  }, [isTauri, currentFilePath, readTextFile, previewEl, editorEl, markdownContent])
+
+  // Watch current file for external changes (desktop)
+  useFileWatcher({
+    isTauri,
+    filePath: currentFilePath,
+    onChange: () => {
+      // Debounced in hook; re-read file and update
+      reloadFromDisk()
+    },
+    debounceMs: 250,
+    enabled: autoReloadEnabled,
+  })
+
 
   // Setup drag and drop for browser
   const { isDragging, dragAndDropProps } = useDragAndDrop({
@@ -205,12 +294,7 @@ function App() {
           </div>
         )}
         
-        <div className="app-header">
-          <h1>MarkReview</h1>
-          <span className="app-env">
-            {isTauri ? 'Desktop App' : 'Web Browser'}
-          </span>
-        </div>
+        {/** Removed top title bar (MarkReview / Desktop App) per request */}
         
         <ErrorBoundary 
           componentName="Toolbar"
@@ -220,6 +304,9 @@ function App() {
             onNew={handleNew}
             onOpen={handleOpen}
             onSave={handleSave}
+            onReload={currentFilePath && isTauri ? reloadFromDisk : undefined}
+            autoReloadEnabled={autoReloadEnabled}
+            onToggleAutoReload={() => setAutoReloadEnabled(v => !v)}
             onSettings={() => setIsSettingsOpen(true)}
             onToggleViewMode={() => updateSettings({ viewMode: settings.viewMode === 'preview' ? 'split' : 'preview' })}
             viewMode={settings.viewMode}

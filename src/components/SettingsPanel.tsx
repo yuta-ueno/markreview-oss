@@ -73,18 +73,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     <option value="auto">Auto (System)</option>
                     <option value="github-light">GitHub Light</option>
                     <option value="github-dark">GitHub Dark</option>
-                    <option value="solarized-light" disabled={!proBuild}>
-                      Solarized Light {proBuild ? '' : '🔒 Pro'}
-                    </option>
-                    <option value="solarized-dark" disabled={!proBuild}>
-                      Solarized Dark {proBuild ? '' : '🔒 Pro'}
-                    </option>
-                    <option value="nord" disabled={!proBuild}>
-                      Nord {proBuild ? '' : '🔒 Pro'}
-                    </option>
-                    <option value="monokai" disabled={!proBuild}>
-                      Monokai {proBuild ? '' : '🔒 Pro'}
-                    </option>
+                    {proBuild && (
+                      <>
+                        <option value="solarized-light">Solarized Light</option>
+                        <option value="solarized-dark">Solarized Dark</option>
+                        <option value="nord">Nord</option>
+                        <option value="monokai">Monokai</option>
+                      </>
+                    )}
                   </select>
                 </div>
               </div>

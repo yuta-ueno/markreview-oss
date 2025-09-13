@@ -71,7 +71,6 @@ PROJECT_STATUS.md
 STATUS.md
 
 # Local helpers and artifacts (do not commit)
-EULA.txt
 test-localStorage.html
 .eslintcache
 .turbo/

@@ -37,6 +37,19 @@
   flex: 1;
   overflow: auto;
   padding: 16px;
+  scrollbar-gutter: stable both-edges;
+  /* Create a small inset on the side near the divider to separate from it */
+  margin-right: 6px;
+}
+
+/* Add small top/bottom spacing for scrollbar (Chromium/WebKit) */
+.preview-content::-webkit-scrollbar-button:single-button:vertical:decrement {
+  height: var(--scrollbar-edge-space);
+  background: transparent;
+}
+.preview-content::-webkit-scrollbar-button:single-button:vertical:increment {
+  height: var(--scrollbar-edge-space);
+  background: transparent;
 }
 
 .preview-placeholder {

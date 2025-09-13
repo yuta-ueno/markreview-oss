@@ -28,9 +28,9 @@ export const APP_CONFIG = {
   DEFAULT_SPLIT_RATIO: 50, // % - Default left/right pane ratio
   MIN_PANE_SIZE: 25, // % - Minimum size for each pane
   
-  // Theme settings
-  AVAILABLE_THEMES: ['solarized-light', 'solarized-dark', 'auto'] as const,
-  DEFAULT_THEME: 'solarized-dark' as const,
+  // Theme settings (Core build)
+  AVAILABLE_THEMES: ['github-light', 'github-dark', 'auto'] as const,
+  DEFAULT_THEME: 'github-light' as const,
   
   // Toast/notification settings
   TOAST_AUTO_CLOSE_DELAY: 4000, // ms - Auto-close delay for toast messages

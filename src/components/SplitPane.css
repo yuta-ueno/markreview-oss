@@ -9,7 +9,12 @@
 .split-pane-right {
   height: 100%;
   overflow: auto;
+  box-sizing: border-box;
 }
+
+/* Add visual breathing room so scrollbars don't kiss borders */
+.split-pane-left { padding-right: 8px; }
+.split-pane-right { padding-left: 8px; padding-right: 8px; }
 
 .split-pane-divider {
   width: 4px;
@@ -18,6 +23,9 @@
   flex-shrink: 0;
   position: relative;
   transition: background-color 0.2s ease;
+  /* Subtle shadow to distinguish from pane scrollbars */
+  box-shadow: inset 1px 0 0 color-mix(in oklab, var(--bg-primary) 60%, transparent),
+              inset -1px 0 0 color-mix(in oklab, var(--bg-primary) 60%, transparent);
 }
 
 .split-pane-divider:hover {

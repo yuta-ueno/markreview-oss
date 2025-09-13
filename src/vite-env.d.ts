@@ -5,3 +5,11 @@ declare global {
     __TAURI__?: Record<string, unknown>
   }
 }
+
+interface ImportMetaEnv {
+  readonly MARKREVIEW_PRO: boolean
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}

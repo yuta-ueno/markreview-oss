@@ -54,11 +54,22 @@ const categorize = (files) => {
   return groups
 }
 
+// Parse porcelain status lines robustly across spacing variations
 const parseStatusLines = (text) => (
   text
     .split(/\r?\n/)
     .filter(Boolean)
-    .map((l) => ({ code: l.slice(0, 2).trim(), file: l.slice(3).trim() }))
+    .map((l) => {
+      // Expected formats (git --porcelain):
+      //  " M path" | "M  path" | "R  old -> new" etc.
+      // Use a regex to capture the first 2 status columns and the remainder
+      const m = l.match(/^(.{2})\s+(.*)$/)
+      if (m) {
+        return { code: m[1].trim(), file: m[2].trim() }
+      }
+      // Fallback to previous slice logic
+      return { code: l.slice(0, 2).trim(), file: l.slice(3).trim() }
+    })
 )
 
 const statusEntries = parseStatusLines(statusShort)

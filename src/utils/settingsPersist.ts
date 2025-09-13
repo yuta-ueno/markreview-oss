@@ -1,16 +1,10 @@
 import { AppSettings, DEFAULT_SETTINGS } from '../types/settings'
 import { logger } from './logger'
+import { isProBuild } from '../pro'
 
 const SETTINGS_STORAGE_KEY = 'markreview-settings'
 
 // Validation: merge partial objects with defaults and coerce invalid values
-const isProBuild = () => {
-  try {
-    return Boolean(import.meta.env.MARKREVIEW_PRO)
-  } catch {
-    return false
-  }
-}
 
 const CORE_THEMES = ['github-light', 'github-dark', 'auto'] as const
 const PRO_THEMES = ['solarized-light', 'solarized-dark', 'nord', 'monokai'] as const

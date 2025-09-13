@@ -143,14 +143,16 @@ const Toolbar: React.FC<ToolbarProps> = ({
         {onToggleViewMode && (
           <button
             className="toolbar-button"
-            aria-pressed={viewMode === 'split'}
+            role="switch"
+            aria-checked={viewMode === 'preview'}
+            aria-label="Preview Only"
             onClick={onToggleViewMode}
-            title="Edit On"
+            title="Preview Only"
           >
-            {viewMode === 'split' ? (
-              <Edit3 size={16} strokeWidth={2} className="toolbar-icon" />
-            ) : (
+            {viewMode === 'preview' ? (
               <Eye size={16} strokeWidth={2} className="toolbar-icon" />
+            ) : (
+              <Edit3 size={16} strokeWidth={2} className="toolbar-icon" />
             )}
             Edit On
           </button>

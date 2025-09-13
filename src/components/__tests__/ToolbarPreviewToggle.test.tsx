@@ -2,8 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, test, expect, vi } from 'vitest'
 import Toolbar from '../Toolbar'
 
-describe('Toolbar Preview Toggle', () => {
-  test('renders slide switch and reflects checked state', () => {
+describe('Toolbar Edit On button', () => {
+  test('renders switch and reflects checked state', () => {
     const onToggle = vi.fn()
 
     const { rerender } = render(
@@ -19,8 +19,8 @@ describe('Toolbar Preview Toggle', () => {
       />
     )
 
-    const sw = screen.getByRole('switch', { name: /preview only/i }) as HTMLInputElement
-    expect(sw.checked).toBe(false)
+    const sw = screen.getByRole('switch', { name: /preview only/i }) as HTMLButtonElement
+    expect(sw.getAttribute('aria-checked')).toBe('false')
 
     // simulate external state change to preview mode
     rerender(
@@ -36,8 +36,9 @@ describe('Toolbar Preview Toggle', () => {
       />
     )
 
-    expect((screen.getByRole('switch', { name: /preview only/i }) as HTMLInputElement).checked).toBe(true)
-    fireEvent.click(screen.getByRole('switch', { name: /preview only/i }))
+    const sw2 = screen.getByRole('switch', { name: /preview only/i }) as HTMLButtonElement
+    expect(sw2.getAttribute('aria-checked')).toBe('true')
+    fireEvent.click(sw2)
     expect(onToggle).toHaveBeenCalled()
   })
 })

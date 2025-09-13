@@ -38,6 +38,8 @@ function App() {
   const { settings, updateSettings, resetSettings } = useSettings()
   // Keep latest settings for exit-time save
   const latestSettingsRef = useRef(settings)
+  // Prevent infinite close loop by ensuring we only handle once
+  const isClosingRef = useRef(false)
   useEffect(() => {
     latestSettingsRef.current = settings
   }, [settings])
@@ -157,24 +159,29 @@ function App() {
         const appWindow = getCurrentWindow()
         // Tauri 2: close-requested allows async work before closing
         unlistenClose = await appWindow.onCloseRequested(async (event) => {
+          if (isClosingRef.current) {
+            // Already handling close; allow default behavior
+            return
+          }
+          isClosingRef.current = true
+
+          // Prevent default close until we finish saving
           try {
-            // Prevent immediate close until we flush settings (API provides preventDefault)
-            // Use optional chaining to be defensive across environments
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;(event as any)?.preventDefault?.()
-          } catch {
-            void 0
-          }
+          } catch { void 0 }
+
           try {
             await persistSaveSettings(latestSettingsRef.current)
           } catch (e) {
             logger.error('Exit save failed (Tauri):', e)
           }
-          try {
-            await appWindow.close()
-          } catch {
-            void 0
-          }
+
+          // Unregister the handler to avoid re-entering when we call close()
+          try { unlistenClose?.() } catch { void 0 }
+
+          // Proceed to close the window
+          try { await appWindow.close() } catch { void 0 }
         })
       } catch {
         // Not running in Tauri; fall back to beforeunload

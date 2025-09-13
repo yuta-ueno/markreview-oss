@@ -41,7 +41,7 @@ Note: Linux builds are temporarily excluded from this release due to CI capacity
 
 #### Prerequisites
 
-- Node.js 18+
+- Node.js >= 20.19 or >= 22.12 (recommend 22 LTS)
 - Rust (stable) and platform toolchains for Tauri
   - Windows: Visual Studio C++ Build Tools + NSIS for installer packaging
   - macOS/Linux: standard build toolchain per Tauri docs

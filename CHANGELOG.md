@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.2 (2025-09-13)
+
+### Changes
+- settings: Remove exit-time settings save (risk of blocking close). Persist settings explicitly on Save and on toggles (View Mode, Auto Reload).
+- accessibility: Expose view mode toggle as role="switch" (name: "Preview Only").
+- quickstart: Update startup Quick Start content to 0.2.2.
+
+### CI/CD
+- ci: Bump Node to 22 LTS in CI/release to satisfy Vite 7 / plugin-react engine requirements.
+- workflows: Minor stability improvements.
+
+### Docs
+- readme: Add macOS DMG install instructions; provide direct URLs for NSIS/DMG; note OSS-only build policy.
+
 ## 0.2.1 (2025-09-09)
 
 ### Fixes

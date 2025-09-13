@@ -162,7 +162,9 @@ function App() {
             // Use optional chaining to be defensive across environments
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;(event as any)?.preventDefault?.()
-          } catch {}
+          } catch {
+            void 0
+          }
           try {
             await persistSaveSettings(latestSettingsRef.current)
           } catch (e) {
@@ -170,10 +172,13 @@ function App() {
           }
           try {
             await appWindow.close()
-          } catch {}
+          } catch {
+            void 0
+          }
         })
       } catch {
         // Not running in Tauri; fall back to beforeunload
+        void 0
       }
     })()
 
@@ -185,7 +190,7 @@ function App() {
 
     return () => {
       window.removeEventListener('beforeunload', onBeforeUnload)
-      try { unlistenClose?.() } catch {}
+      try { unlistenClose?.() } catch { void 0 }
     }
   }, [])
 

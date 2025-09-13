@@ -1,11 +1,24 @@
 import React, { useRef } from 'react'
-import { FilePlus, FolderOpen, Save as SaveIcon, Settings as SettingsIcon } from 'lucide-react'
+import {
+  FilePlus,
+  FolderOpen,
+  Save as SaveIcon,
+  Settings as SettingsIcon,
+  RotateCcw,
+  RefreshCw,
+  RefreshCcw,
+  Edit3,
+  Eye,
+} from 'lucide-react'
 import './Toolbar.css'
 
 interface ToolbarProps {
   onNew: () => void
   onOpen: (content: string, filename: string) => void
   onSave: () => void
+  onReload?: () => void | Promise<void>
+  autoReloadEnabled?: boolean
+  onToggleAutoReload?: () => void
   onSettings?: () => void
   onToggleViewMode?: () => void
   viewMode?: 'split' | 'preview'
@@ -18,6 +31,9 @@ const Toolbar: React.FC<ToolbarProps> = ({
   onNew,
   onOpen,
   onSave,
+  onReload,
+  autoReloadEnabled = false,
+  onToggleAutoReload,
   onSettings,
   onToggleViewMode,
   viewMode = 'split',
@@ -100,6 +116,17 @@ const Toolbar: React.FC<ToolbarProps> = ({
           {hasUnsavedChanges && <span className="unsaved-indicator">*</span>}
         </button>
 
+        {onReload && (
+          <button
+            className="toolbar-button"
+            onClick={onReload}
+            title="Reload from disk"
+          >
+            <RotateCcw size={16} strokeWidth={2} className="toolbar-icon" />
+            Reload
+          </button>
+        )}
+
         <div className="toolbar-separator" />
 
         {onSettings && (
@@ -114,19 +141,35 @@ const Toolbar: React.FC<ToolbarProps> = ({
         )}
 
         {onToggleViewMode && (
-          <div className="toolbar-toggle">
-            <label className="toggle-switch" title="Preview Only (Ctrl+Shift+P)">
-              <input
-                type="checkbox"
-                role="switch"
-                aria-label="Preview Only"
-                checked={viewMode === 'preview'}
-                onChange={onToggleViewMode}
-              />
-              <span className="switch-slider" aria-hidden="true" />
-            </label>
-            <span className="toggle-label">Preview Only</span>
-          </div>
+          <button
+            className="toolbar-button"
+            aria-pressed={viewMode === 'split'}
+            onClick={onToggleViewMode}
+            title="Edit On"
+          >
+            {viewMode === 'split' ? (
+              <Edit3 size={16} strokeWidth={2} className="toolbar-icon" />
+            ) : (
+              <Eye size={16} strokeWidth={2} className="toolbar-icon" />
+            )}
+            Edit On
+          </button>
+        )}
+
+        {onToggleAutoReload && (
+          <button
+            className="toolbar-button"
+            aria-pressed={autoReloadEnabled}
+            onClick={onToggleAutoReload}
+            title="Auto Reload"
+          >
+            {autoReloadEnabled ? (
+              <RefreshCw size={16} strokeWidth={2} className="toolbar-icon" />
+            ) : (
+              <RefreshCcw size={16} strokeWidth={2} className="toolbar-icon" />
+            )}
+            Auto Reload
+          </button>
         )}
       </div>
 

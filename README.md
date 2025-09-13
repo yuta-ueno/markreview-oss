@@ -31,11 +31,13 @@ A lightweight, cross‑platform desktop application built with Tauri 2 + React f
 
 - Latest release: https://github.com/yuta-ueno/markreview/releases/latest
 
-Platform assets for v0.2.1:
-- Windows (NSIS): https://github.com/yuta-ueno/markreview/releases/download/v0.2.1/MarkReview_0.2.1_x64-setup.exe
-- Windows (MSI): may be attached shortly after initial publish.
+Platform assets for v0.2.2:
+- Windows (NSIS installer): see the Assets section on the latest release page
+- macOS (DMG): see the Assets section on the latest release page
 
-Note: Linux builds are temporarily excluded from this release due to CI capacity; they will return in a subsequent version.
+Notes:
+- Linux builds are temporarily excluded from this release due to CI capacity; they will return in a subsequent version.
+- macOS install: open the downloaded DMG and drag “MarkReview” into Applications. If Gatekeeper blocks the app, open System Settings → Privacy & Security and click “Open Anyway” for MarkReview.
 
 ### Build from Source
 

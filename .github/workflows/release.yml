@@ -26,6 +26,7 @@ jobs:
       release_id: ${{ steps.create-release.outputs.id }}
       upload_url: ${{ steps.create-release.outputs.upload_url }}
     steps:
+    - uses: actions/checkout@v4
     - name: Extract version from tag
       id: vars
       shell: bash

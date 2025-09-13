@@ -11,6 +11,11 @@ if (!ver) {
 }
 
 const changelogPath = path.join(process.cwd(), 'CHANGELOG.md')
+if (!fs.existsSync(changelogPath)) {
+  console.error('CHANGELOG.md not found at', changelogPath)
+  process.exit(1)
+}
+
 const text = fs.readFileSync(changelogPath, 'utf8')
 const lines = text.split('\n')
 
@@ -31,4 +36,3 @@ for (let j = start + 1; j < lines.length; j++) {
 
 const section = lines.slice(start, end).join('\n').trim()
 console.log(section)
-

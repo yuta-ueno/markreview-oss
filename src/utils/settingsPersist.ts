@@ -4,15 +4,35 @@ import { logger } from './logger'
 const SETTINGS_STORAGE_KEY = 'markreview-settings'
 
 // Validation: merge partial objects with defaults and coerce invalid values
+const isProBuild = () => {
+  try {
+    return Boolean(import.meta.env.MARKREVIEW_PRO)
+  } catch {
+    return false
+  }
+}
+
+const CORE_THEMES = ['github-light', 'github-dark', 'auto'] as const
+const PRO_THEMES = ['solarized-light', 'solarized-dark', 'nord', 'monokai'] as const
+
+const coerceTheme = (theme: unknown): AppSettings['theme'] => {
+  const t = typeof theme === 'string' ? theme : undefined
+  if (!t) return DEFAULT_SETTINGS.theme
+  const all = [...CORE_THEMES, ...PRO_THEMES]
+  if (!all.includes(t as any)) return DEFAULT_SETTINGS.theme
+  if (!isProBuild() && (PRO_THEMES as readonly string[]).includes(t)) {
+    return 'github-light'
+  }
+  return t as AppSettings['theme']
+}
+
 export const validateSettings = (settings: unknown): AppSettings => {
   if (!settings || typeof settings !== 'object') return DEFAULT_SETTINGS
   const s = settings as Partial<AppSettings>
 
   const validated: AppSettings = {
-    theme:
-      s.theme && ['github-light', 'github-dark', 'solarized-light', 'solarized-dark', 'nord', 'monokai', 'auto'].includes(s.theme)
-        ? s.theme
-        : DEFAULT_SETTINGS.theme,
+    // テーマはPro版専用テーマをビルドフラグで制限
+    theme: coerceTheme((s as any).theme),
     viewMode:
       s && typeof (s as any).viewMode === 'string' && ['split', 'preview'].includes((s as any).viewMode as string)
         ? ((s as any).viewMode as AppSettings['viewMode'])
@@ -34,6 +54,7 @@ export const validateSettings = (settings: unknown): AppSettings => {
       maximized: typeof s.window?.maximized === 'boolean' ? s.window.maximized : DEFAULT_SETTINGS.window.maximized,
     },
     shortcuts: typeof s.shortcuts === 'object' && s.shortcuts !== null ? { ...DEFAULT_SETTINGS.shortcuts, ...s.shortcuts } : DEFAULT_SETTINGS.shortcuts,
+    autoReload: typeof (s as any).autoReload === 'boolean' ? (s as any).autoReload : DEFAULT_SETTINGS.autoReload,
   }
   return validated
 }

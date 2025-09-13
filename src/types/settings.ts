@@ -28,10 +28,12 @@ export interface AppSettings {
   window: WindowSettings
   shortcuts: Record<string, string>
   viewMode: ViewMode
+  autoReload: boolean
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  theme: 'solarized-dark',
+  // Pro専用テーマ化に伴い既定をOSSテーマへ変更
+  theme: 'github-light',
   editor: {
     fontSize: 14,
     fontFamily: 'Monaco, Menlo, Ubuntu Mono, Consolas, monospace',
@@ -53,7 +55,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
     'find': 'Ctrl+F',
     'settings': 'Ctrl+,',
   },
-  viewMode: 'split',
+  // Change default: Edit Off (Preview-only)
+  viewMode: 'preview',
+  autoReload: false,
 }
 
 export type SettingsKey = keyof AppSettings

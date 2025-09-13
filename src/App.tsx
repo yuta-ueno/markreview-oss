@@ -36,13 +36,7 @@ function App() {
 
   // Initialize settings and toast
   const { settings, updateSettings, resetSettings } = useSettings()
-  // Keep latest settings for exit-time save
-  const latestSettingsRef = useRef(settings)
-  // Prevent infinite close loop by ensuring we only handle once
-  const isClosingRef = useRef(false)
-  useEffect(() => {
-    latestSettingsRef.current = settings
-  }, [settings])
+  // Remove exit-time saving: persistence is handled on explicit actions
   // Initialize window manager for size persistence
   useWindowManager()
   const { toasts, removeToast, showToast, success, error, info } = useToast()
@@ -150,56 +144,7 @@ function App() {
     onContentChange: handleContentChange,
   })
 
-  // Ensure settings are persisted on app exit (Tauri + Web fallback)
-  useEffect(() => {
-    let unlistenClose: (() => void) | undefined
-    ;(async () => {
-      try {
-        const { getCurrentWindow } = await import('@tauri-apps/api/window')
-        const appWindow = getCurrentWindow()
-        // Tauri 2: close-requested allows async work before closing
-        unlistenClose = await appWindow.onCloseRequested(async (event) => {
-          if (isClosingRef.current) {
-            // Already handling close; allow default behavior
-            return
-          }
-          isClosingRef.current = true
-
-          // Prevent default close until we finish saving
-          try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;(event as any)?.preventDefault?.()
-          } catch { void 0 }
-
-          try {
-            await persistSaveSettings(latestSettingsRef.current)
-          } catch (e) {
-            logger.error('Exit save failed (Tauri):', e)
-          }
-
-          // Unregister the handler to avoid re-entering when we call close()
-          try { unlistenClose?.() } catch { void 0 }
-
-          // Proceed to close the window
-          try { await appWindow.close() } catch { void 0 }
-        })
-      } catch {
-        // Not running in Tauri; fall back to beforeunload
-        void 0
-      }
-    })()
-
-    const onBeforeUnload = () => {
-      // Best-effort save; browsers may not await this promise
-      void persistSaveSettings(latestSettingsRef.current)
-    }
-    window.addEventListener('beforeunload', onBeforeUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', onBeforeUnload)
-      try { unlistenClose?.() } catch { void 0 }
-    }
-  }, [])
+  // Removed exit-time save hooks as per policy
 
   // Reload the currently opened file from disk while preserving scroll
   const reloadFromDisk = useCallback(async () => {
@@ -315,12 +260,29 @@ function App() {
           <Toolbar
             onNew={handleNew}
             onOpen={handleOpen}
-            onSave={handleSave}
+            onSave={async () => {
+              await handleSave()
+              try {
+                await persistSaveSettings({ ...settings, autoReload: autoReloadEnabled })
+              } catch (e) {
+                logger.error('Settings save on file Save failed:', e)
+              }
+            }}
             onReload={currentFilePath && isTauri ? reloadFromDisk : undefined}
             autoReloadEnabled={autoReloadEnabled}
-            onToggleAutoReload={() => setAutoReloadEnabled(v => !v)}
+            onToggleAutoReload={async () => {
+              const next = !autoReloadEnabled
+              setAutoReloadEnabled(next)
+              // Persist immediately
+              updateSettings({ autoReload: next } as any)
+              await persistSaveSettings({ ...settings, autoReload: next })
+            }}
             onSettings={() => setIsSettingsOpen(true)}
-            onToggleViewMode={() => updateSettings({ viewMode: settings.viewMode === 'preview' ? 'split' : 'preview' })}
+            onToggleViewMode={async () => {
+              const nextMode = settings.viewMode === 'preview' ? 'split' : 'preview'
+              updateSettings({ viewMode: nextMode })
+              await persistSaveSettings({ ...settings, viewMode: nextMode, autoReload: autoReloadEnabled })
+            }}
             viewMode={settings.viewMode}
             content={markdownContent}
             filename={filename}

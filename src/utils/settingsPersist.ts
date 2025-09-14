@@ -1,6 +1,6 @@
 import { AppSettings, DEFAULT_SETTINGS } from '../types/settings'
 import { logger } from './logger'
-import { isProBuild } from '../pro'
+import { isProBuild } from '../utils/proFlags'
 
 const SETTINGS_STORAGE_KEY = 'markreview-settings'
 

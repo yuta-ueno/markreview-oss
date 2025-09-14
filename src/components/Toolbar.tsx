@@ -144,23 +144,23 @@ const Toolbar: React.FC<ToolbarProps> = ({
           <button
             className="toolbar-button"
             role="switch"
-            aria-checked={viewMode === 'preview'}
-            aria-label="Preview Only"
+            aria-checked={viewMode !== 'preview'}
+            aria-label="Edit Mode"
             onClick={onToggleViewMode}
-            title="Preview Only"
+            title="Edit Mode"
           >
             {viewMode === 'preview' ? (
               <Eye size={16} strokeWidth={2} className="toolbar-icon" />
             ) : (
               <Edit3 size={16} strokeWidth={2} className="toolbar-icon" />
             )}
-            Edit On
+            {viewMode === 'preview' ? 'Edit On' : 'Edit Off'}
           </button>
         )}
 
         {onToggleAutoReload && (
           <button
-            className="toolbar-button"
+            className={`toolbar-button ${autoReloadEnabled ? 'auto-reload-active' : ''}`}
             aria-pressed={autoReloadEnabled}
             onClick={onToggleAutoReload}
             title="Auto Reload"

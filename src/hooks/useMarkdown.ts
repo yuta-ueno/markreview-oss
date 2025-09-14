@@ -15,6 +15,7 @@ export interface MarkdownProcessingOptions {
   sanitize?: boolean
   enableVirtualization?: boolean
   chunkSize?: number
+  enableMarkdoc?: boolean
 }
 
 // Cache for processed processors to avoid recreation
@@ -72,19 +73,20 @@ export const useMarkdown = (
     enableHighlight = true,
     sanitize = true,
     enableVirtualization = false,
-    chunkSize = 50000
+    chunkSize = 50000,
+    enableMarkdoc = true
   } = options
-
-  // No local DOMPurify config; use centralized sanitizer
 
   const processedContent = useMemo(() => {
     if (!content || content.trim() === '') {
       return ''
     }
 
+    // OSS builds: Markdoc is completely unavailable - no processing needed
+
     // Performance check for very large content
     const isLargeContent = content.length > APP_CONFIG.MAX_FILE_SIZE / 2 // 5MB threshold
-    
+
     if (isLargeContent && !enableVirtualization) {
       logger.warn('Large markdown content detected. Consider enabling virtualization for better performance.')
     }
@@ -92,11 +94,11 @@ export const useMarkdown = (
     try {
       let htmlString: string
 
-      // Use chunked processing for very large content
       if (isLargeContent && enableVirtualization) {
+        // Use chunked processing for very large content
         htmlString = processLargeContent(content, { enableGfm, enableHighlight, chunkSize })
       } else {
-        // Standard processing
+        // Standard markdown processing
         const processor = createProcessor({ enableGfm, enableHighlight })
         const result = processor.processSync(content)
         htmlString = String(result)
@@ -112,7 +114,7 @@ export const useMarkdown = (
       logger.error('Markdown processing error:', error)
       return '<p>Error processing markdown content</p>'
     }
-  }, [content, enableGfm, enableHighlight, sanitize, enableVirtualization, chunkSize])
+  }, [content, enableGfm, enableHighlight, sanitize, enableVirtualization, chunkSize, enableMarkdoc])
 
   return processedContent
 }

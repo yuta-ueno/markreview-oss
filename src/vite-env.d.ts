@@ -7,7 +7,7 @@ declare global {
 }
 
 interface ImportMetaEnv {
-  readonly MARKREVIEW_PRO: boolean
+  readonly MARKREVIEW_PRO: boolean | string
 }
 
 interface ImportMeta {

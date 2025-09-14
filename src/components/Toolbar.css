@@ -45,6 +45,13 @@
   border-color: var(--accent-color);
 }
 
+/* Auto Reload button when auto reload is enabled */
+.toolbar-button.auto-reload-active {
+  border: 1px solid var(--accent-color);
+  background-color: color-mix(in oklab, var(--accent-color) 10%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-color) 20%, transparent);
+}
+
 .toolbar-icon {
   font-size: 14px;
 }

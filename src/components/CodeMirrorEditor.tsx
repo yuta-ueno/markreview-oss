@@ -39,6 +39,12 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
   const viewRef = useRef<EditorView | null>(null)
   const currentTheme = useRef<string>(theme)
   const isProgrammaticUpdate = useRef<boolean>(false)
+  const isDarkThemeName = (name: ThemeMode) => {
+    if (name === 'auto') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+    }
+    return name.endsWith('-dark') || name === 'github-dark' || name === 'monokai'
+  }
 
   useEffect(() => {
     if (!editor.current) return
@@ -135,6 +141,28 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
     }
     
     extensions.push(getCodeMirrorTheme(theme))
+    // Keep editor bg/text synchronized with app theme variables
+    const dark = isDarkThemeName(theme)
+    extensions.push(
+      EditorView.theme(
+        {
+          '&': {
+            color: 'var(--text-color)',
+            backgroundColor: 'var(--bg-primary)',
+          },
+          '.cm-content': { caretColor: 'var(--text-color)' },
+          '.cm-activeLine': {
+            backgroundColor: 'color-mix(in oklab, var(--bg-tertiary) 40%, transparent)'
+          },
+          '.cm-gutters': {
+            backgroundColor: 'var(--bg-primary)',
+            color: 'var(--text-muted)',
+            border: 'none',
+          },
+        },
+        { dark }
+      )
+    )
 
     if (placeholder) {
       extensions.push(

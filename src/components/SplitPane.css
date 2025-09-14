@@ -10,6 +10,8 @@
   height: 100%;
   overflow: auto;
   box-sizing: border-box;
+  background-color: var(--bg-primary);
+  color: var(--text-color);
 }
 
 /* Add visual breathing room so scrollbars don't kiss borders */

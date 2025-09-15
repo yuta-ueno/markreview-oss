@@ -229,9 +229,11 @@ jobs:
       - name: Resolve release upload_url by tag
         id: rel
         uses: actions/github-script@v7
+        env:
+          TAG: ${{ inputs.tag }}
         with:
           script: |
-            const { tag } = context.payload.inputs;
+            const tag = process.env.TAG;
             const { data: rel } = await github.rest.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,

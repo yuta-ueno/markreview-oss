@@ -19,8 +19,10 @@ describe('Toolbar Edit On button', () => {
       />
     )
 
-    const sw = screen.getByRole('switch', { name: /preview only/i }) as HTMLButtonElement
-    expect(sw.getAttribute('aria-checked')).toBe('false')
+    // Accessible name changed to "Edit Mode" and semantics:
+    // aria-checked=true when editing is enabled (viewMode !== 'preview').
+    const sw = screen.getByRole('switch', { name: /edit mode/i }) as HTMLButtonElement
+    expect(sw.getAttribute('aria-checked')).toBe('true')
 
     // simulate external state change to preview mode
     rerender(
@@ -36,8 +38,8 @@ describe('Toolbar Edit On button', () => {
       />
     )
 
-    const sw2 = screen.getByRole('switch', { name: /preview only/i }) as HTMLButtonElement
-    expect(sw2.getAttribute('aria-checked')).toBe('true')
+    const sw2 = screen.getByRole('switch', { name: /edit mode/i }) as HTMLButtonElement
+    expect(sw2.getAttribute('aria-checked')).toBe('false')
     fireEvent.click(sw2)
     expect(onToggle).toHaveBeenCalled()
   })

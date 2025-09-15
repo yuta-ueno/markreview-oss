@@ -1,0 +1,39 @@
+From f0d0bc575126dcf5877c6f13541d0b27ce454d15 Mon Sep 17 00:00:00 2001
+From: yuta-ueno <yuta.ueno28@gmail.com>
+Date: Mon, 15 Sep 2025 19:27:28 +0900
+Subject: [PATCH] style(markdown): preserve whitespace in code blocks
+
+---
+ src/styles/markdown.css | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/src/styles/markdown.css b/src/styles/markdown.css
+index b1a529a..bcc1b91 100644
+--- a/src/styles/markdown.css
++++ b/src/styles/markdown.css
+@@ -58,7 +58,8 @@
+   box-sizing: border-box;
+   min-width: 200px;
+   max-width: none;
+-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
++  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans',
++    Helvetica, Arial, sans-serif;
+   word-wrap: break-word;
+ }
+ 
+@@ -467,4 +468,10 @@
+ .markdown-body pre:focus-within {
+   outline: 2px solid var(--focus);
+   outline-offset: 2px;
+-}
+\ No newline at end of file
++}
++
++/* ensure code blocks retain whitespace */
++.markdown-body pre,
++.markdown-body pre code.hljs {
++  white-space: pre;
++}
+-- 
+2.50.1.windows.1
+

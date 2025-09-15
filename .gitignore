@@ -86,3 +86,5 @@ src/pro/
 
 # Release drafting artifacts
 RELEASE_BODY.md
+
+patches/

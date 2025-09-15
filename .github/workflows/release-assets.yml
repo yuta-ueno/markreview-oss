@@ -1,0 +1,142 @@
+name: Release Assets (Dispatch)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag (e.g., v0.2.3)'
+        required: true
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: write
+
+jobs:
+  build-assets:
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve release upload_url by tag
+        id: rel
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = core.getInput('tag');
+            const { data: rel } = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag,
+            });
+            core.setOutput('upload_url', rel.upload_url);
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install dependencies (macOS only)
+        if: matrix.platform == 'macos-latest'
+        run: npm ci
+
+      - name: Install dependencies (Windows only)
+        if: matrix.platform == 'windows-latest'
+        run: npm ci
+
+      - name: Install NSIS (Windows only)
+        if: matrix.platform == 'windows-latest'
+        run: choco install nsis -y
+
+      - name: Install Tauri CLI
+        run: npm install -g @tauri-apps/cli
+
+      - name: Build Tauri application (Windows)
+        if: matrix.platform == 'windows-latest'
+        run: npm run tauri build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_BUNDLE_TARGETS: nsis
+
+      - name: Build Tauri application (macOS)
+        if: matrix.platform == 'macos-latest'
+        run: npm run tauri build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_BUNDLE_TARGETS: dmg
+
+      - name: Resolve Windows NSIS artifact
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        run: |
+          $file = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter *.exe -Recurse | Select-Object -ExpandProperty FullName -First 1
+          if (-not $file) { Write-Error "NSIS installer not found"; exit 1 }
+          ("NSIS_PATH=$file") | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          ("NSIS_NAME=" + (Split-Path $file -Leaf)) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload Windows NSIS
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.rel.outputs.upload_url }}
+          asset_path: ${{ env.NSIS_PATH }}
+          asset_name: ${{ env.NSIS_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Resolve Windows MSI artifact
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        run: |
+          $file = Get-ChildItem -Path "src-tauri/target/release/bundle/msi" -Filter *.msi -Recurse | Select-Object -ExpandProperty FullName -First 1
+          if (-not $file) { Write-Error "MSI not found"; exit 1 }
+          ("MSI_PATH=$file") | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          ("MSI_NAME=" + (Split-Path $file -Leaf)) | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload Windows MSI
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.rel.outputs.upload_url }}
+          asset_path: ${{ env.MSI_PATH }}
+          asset_name: ${{ env.MSI_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Resolve macOS DMG artifact
+        if: matrix.platform == 'macos-latest'
+        shell: bash
+        run: |
+          file=$(ls -1 src-tauri/target/release/bundle/dmg/*.dmg | head -n 1)
+          if [[ -z "$file" ]]; then echo "DMG not found"; exit 1; fi
+          echo "DMG_PATH=$file" >> $GITHUB_ENV
+          echo "DMG_NAME=$(basename "$file")" >> $GITHUB_ENV
+
+      - name: Upload macOS DMG
+        if: matrix.platform == 'macos-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.rel.outputs.upload_url }}
+          asset_path: ${{ env.DMG_PATH }}
+          asset_name: ${{ env.DMG_NAME }}
+          asset_content_type: application/octet-stream
+
